@@ -173,4 +173,5 @@ public class TestAtLeastOneMoveExists {
         assertFalse("No move exists\n" + b,
                 Model.atLeastOneMoveExists(b));
     }
+
 }

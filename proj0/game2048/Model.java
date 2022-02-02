@@ -204,7 +204,6 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
-        System.out.println(b.size());
         Tile checker;
         Tile checker1;
         for (int i = 0;i<b.size();i++)
