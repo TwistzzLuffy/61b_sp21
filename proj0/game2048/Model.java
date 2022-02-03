@@ -132,6 +132,8 @@ public class Model extends Observable {
                         }
                         k++;
                     }
+                    if(i == size-1)
+                        k--;
                     boolean a =board.move(j,k,t);
                     if (a){
                         inf--;//合并后设立新边界
