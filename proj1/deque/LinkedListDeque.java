@@ -3,6 +3,7 @@ package deque;
 public class LinkedListDeque <Luffy>{
     private StaffNode sentinel;
     private int size;
+    private StaffNode viceSent;
 
     public class StaffNode{
         public Luffy item;
@@ -87,6 +88,19 @@ public class LinkedListDeque <Luffy>{
         }
         return p.next.item;
     }
+
+    public Luffy getRecursive(int index){
+        if(isEmpty())
+            return null;
+        viceSent=viceSent.next;
+        if(index == 0){
+            Luffy res = viceSent.item;
+            viceSent = sentinel;
+            return res;
+        }
+        return getRecursive(index-1);
+    }
+
     public static void main(String[] args) {
         LinkedListDeque<Integer> L = new LinkedListDeque<Integer>();
 
