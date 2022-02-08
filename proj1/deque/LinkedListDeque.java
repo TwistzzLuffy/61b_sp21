@@ -1,119 +1,168 @@
 package deque;
 
-public class LinkedListDeque <Luffy>{
-    private StaffNode sentinel;
+import java.util.Iterator;
+
+public class LinkedListDeque<T> implements  Iterable<T> {
+    private final Node<T> head = new Node<>(null, null, null);
     private int size;
-    private StaffNode viceSent;
 
-    public class StaffNode{
-        public Luffy item;
-        public StaffNode next;
-        public StaffNode prev;
-
-        public StaffNode(StaffNode p,Luffy i,StaffNode n){
-            item = i;
-            next = n;
-            prev = p;
-        }
-    }
-    public LinkedListDeque(){
-        sentinel =new StaffNode(null,null,null);
-        sentinel.prev=sentinel;
-        sentinel.next=sentinel;
-        size=0;
-    }
-    public void addFirst(Luffy x){
-        sentinel.next=new StaffNode(sentinel,x,sentinel.next);
-        sentinel.next.next.prev = sentinel.next;
-        size +=1;
-    }
-    public void addLast(Luffy x){
-        sentinel.prev=new StaffNode(sentinel.prev,x,sentinel);
-        sentinel.prev.prev.next = sentinel.prev;
-        size +=1;
+    public LinkedListDeque() {
+        head.next = head;
+        head.prev = head;
+        size = 0;
     }
 
-    public boolean isEmpty(){
-        if (sentinel.next == sentinel.prev)
-            return true;
-        return false;
+    public LinkedListDeque(T item) {
+        head.next = new Node<>(item, head, head);
+        head.prev = head.next;
+        size = 1;
     }
 
-    public int size(){
+    public void addFirst(T item) {
+        head.next = new Node<>(item, head, head.next);
+        head.next.next.prev = head.next;
+        size += 1;
+    }
+
+    public void addLast(T item) {
+        head.prev = new Node<>(item, head.prev, head);
+        head.prev.prev.next = head.prev;
+        size += 1;
+    }
+
+    public int size() {
         return size;
     }
 
-    public void printDeque(){
-        StaffNode p = sentinel;
-        for (int s =0;s<size;s++){
-            System.out.print(p.next.item);
-            System.out.print(" ");
+    public void printDeque() {
+        String[] items = new String[size];
+        Node<T> p = head.next;
+        if (p == head) {
+            return;
+        }
+        for (int i = 0; i < size; i++) {
+            items[i] = p.item.toString();
             p = p.next;
         }
-        System.out.println();
+        System.out.println(String.join(" ", items));
     }
-
-    public Luffy removeFirst(){
-        StaffNode p = sentinel;
-        Luffy a = p.next.item;
-        p.next = p.next.next;
-        p.next.prev=sentinel;
-        if(this.isEmpty())
+    public boolean isEmpty() {
+        if (head.next == head.prev)
+            return true;
+        return false;
+    }
+    public T removeFirst() {
+        if (isEmpty()) {
             return null;
-        else{
-            size -= 1;
-            return  a;
         }
+        T item = head.next.item;
+        head.next = head.next.next;
+        head.next.prev = head;
+        size -= 1;
+        return item;
     }
 
-    public Luffy removeLast(){
-        StaffNode p = sentinel;
-        Luffy a = p.prev.item;
-        p.prev = p.prev.prev;
-        p.prev.next = sentinel;
-        if(this.isEmpty())
+    public T removeLast() {
+        if (isEmpty()) {
             return null;
-        else{
-            size -= 1;
-            return  a;
         }
+        T item = head.prev.item;
+        head.prev = head.prev.prev;
+        head.prev.next = head;
+        size -= 1;
+        return item;
     }
 
-    public Luffy get(int index){
-        int s = 0;
-        StaffNode p = sentinel;
-        while(s != index){
-            p=p.next;
-            s++;
-        }
-        return p.next.item;
-    }
-
-    public Luffy getRecursive(int index){
-        if(isEmpty())
+    public T get(int index) {
+        if (index < 0 || index > size - 1) {
             return null;
-        viceSent=viceSent.next;
-        if(index == 0){
-            Luffy res = viceSent.item;
-            viceSent = sentinel;
-            return res;
         }
-        return getRecursive(index-1);
+        Node<T> currentNode = head.next;
+        for (int i = 0; i < size; i++) {
+            if (i == index) {
+                return currentNode.item;
+            }
+            currentNode = currentNode.next;
+        }
+        throw new AssertionError();
     }
 
-    public static void main(String[] args) {
-        LinkedListDeque<Integer> L = new LinkedListDeque<Integer>();
+    public T getRecursive(int index) {
+        if (index < 0 || index > size - 1) {
+            return null;
+        }
+        return getRecursiveHelper(index, head.next);
+    }
 
-        L.addFirst(5);
-        L.addLast(6);
-        L.addLast(7);
-        L.addFirst(4);
-        System.out.println(L.size());
-        L.printDeque();
-        System.out.println(L.removeFirst());
-        System.out.println(L.removeLast());
-        L.printDeque();
-        System.out.println(L.get(1));
-        System.out.println(L.isEmpty());
+    private T getRecursiveHelper(int index, Node<T> currentNode) {
+        if (index == 0) {
+            return currentNode.item;
+        }
+        return getRecursiveHelper(index - 1, currentNode.next);
+    }
+
+    public Iterator<T> iterator() {
+        return new LinkedListDequeIterator();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof LinkedListDeque)) {
+            return false;
+        }
+        LinkedListDeque<?> lld = (LinkedListDeque<?>) o;
+        if (lld.size() != size) {
+            return false;
+        }
+        for (int i = 0; i < size; i++) {
+            if (lld.get(i) != get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static class Node<N> {
+        private final N item;
+        private Node<N> prev;
+        private Node<N> next;
+
+        Node(N i, Node<N> p, Node<N> n) {
+            item = i;
+            prev = p;
+            next = n;
+        }
+
+        @Override
+        public String toString() {
+            if (item == null) {
+                return "null";
+            }
+            return item.toString();
+        }
+    }
+
+    private class LinkedListDequeIterator implements Iterator<T> {
+        private Node<T> p;
+
+        LinkedListDequeIterator() {
+            p = head.next;
+        }
+
+        public boolean hasNext() {
+            return p == head;
+        }
+
+        public T next() {
+            T item = p.item;
+            p = p.next;
+            return item;
+        }
     }
 }
