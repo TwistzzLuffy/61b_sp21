@@ -5,8 +5,8 @@ package deque;
 public class ArrayDeque<T> {
     private T[] item;
     private int size;
-    private int nextFirst;
-    private int nextLast;
+    private int nextFirst=3;
+    private int nextLast=4;
 
     /** Creates an empty list. */
     public ArrayDeque() {
@@ -49,6 +49,8 @@ public class ArrayDeque<T> {
     }
 
     public T removeFirst(){
+        if (isEmpty())
+            return null;
         T a =item[nextFirst+1];
         item[nextFirst+1] = null;
         size -= 1;
@@ -59,6 +61,8 @@ public class ArrayDeque<T> {
     }
 
     public T removeLast(){
+        if (isEmpty())
+            return null;
         T a =item[nextLast-1];
         item[nextLast-1] = null;
         size -= 1;
@@ -69,6 +73,8 @@ public class ArrayDeque<T> {
     }
 
     public T get(int index){
+        if (isEmpty())
+            return null;
         return item[index];
     }
 
