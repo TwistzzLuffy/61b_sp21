@@ -13,7 +13,19 @@ public class ArrayDeque<T> {
         item =(T[]) new Object[8];
         size = 0;
     }
+
+    public void resize(int capcacity){
+        T[] a = (T[]) new Object[capcacity];
+        System.arraycopy(item,0,a,0,item.length);
+        item = a;
+    }
+
     public void addFirst(T x){
+        if (size == item.length){
+            resize(size*2);
+            nextFirst = item.length-1;
+            nextLast = size;
+        }
         item[nextFirst] = x;
         size +=1;
         nextFirst -=1;
@@ -22,6 +34,11 @@ public class ArrayDeque<T> {
     }
 
     public void addLast(T x){
+        if (size == item.length){
+            resize(size*2);
+            nextFirst = item.length-1;
+            nextLast = size;
+        }
         item[nextLast] = x;
         size +=1;
         nextLast +=1;
@@ -48,6 +65,19 @@ public class ArrayDeque<T> {
         System.out.println();
     }
 
+    public boolean TorF(){
+        float R = size/item.length;
+        if(R<0.25)
+            return true;
+        return false;
+    }
+
+    public void minArray(int capcacity){
+        T[] a = (T[]) new Object[capcacity];
+        System.arraycopy(item,0,a,0,size);
+        item = a;
+    }
+
     public T removeFirst(){
         if (isEmpty())
             return null;
@@ -57,6 +87,10 @@ public class ArrayDeque<T> {
         nextFirst = nextFirst+1;
         if (nextFirst == item.length)
             nextFirst = 0;
+        if (TorF()){
+            int min = size/2;
+            minArray(min);
+        }
         return a;
     }
 
@@ -69,13 +103,16 @@ public class ArrayDeque<T> {
         nextLast = nextLast-1;
         if(nextLast == -1)
             nextLast = item.length-1;
+        if (TorF()){
+            int min = size/2;
+            minArray(min);
+        }
         return a;
     }
 
     public T get(int index){
-        if (isEmpty())
-            return null;
         return item[index];
     }
+
 
 }
