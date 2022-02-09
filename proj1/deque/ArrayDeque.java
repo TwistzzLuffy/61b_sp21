@@ -1,89 +1,75 @@
+/** Array based list.
+ *  @author Josh Hug
+ */
+package deque;
 public class ArrayDeque<T> {
-
-    private T[] items;
+    private T[] item;
     private int size;
+    private int nextFirst;
+    private int nextLast;
 
+    /** Creates an empty list. */
     public ArrayDeque() {
-        items = (T[]) new Object[8];
+        item =(T[]) new Object[8];
         size = 0;
     }
-
-    public void addFirst(T item) {
-        if (size == items.length) {
-            T[] a = (T[]) new Object[items.length * 2];
-            System.arraycopy(items, 0, a, 1, size);
-            items = a;
-        } else {
-            T[] a = (T[]) new Object[items.length];
-            System.arraycopy(items, 0, a, 1, size);
-            items = a;
-        }
-        items[0] = item;
-        size += 1;
+    public void addFirst(T x){
+        item[nextFirst] = x;
+        size +=1;
+        nextFirst -=1;
+        if (nextFirst == -1)
+            nextFirst = item.length-1;
     }
 
-    public void addLast(T item) {
-        if (size == items.length) {
-            resize(size * 2);
-        }
-        items[size] = item;
-        size += 1;
+    public void addLast(T x){
+        item[nextLast] = x;
+        size +=1;
+        nextLast +=1;
+        if (nextLast == item.length)
+            nextLast = 0;
     }
 
-    private void resize(int i) {
-        T[] a = (T[]) new Object[i];
-        System.arraycopy(items, 0, a, 0, size);
-        items = a;
+    public boolean isEmpty(){
+        if(nextFirst == nextLast)
+            return true;
+        return false;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public void printDeque() {
-        for (int i = 0; i < size; ++i) {
-            System.out.println(items[i]);
-        }
-    }
-
-    public T removeFirst() {
-        if (size == 0) {
-            return null;
-        }
-        T res = get(0);
-        T[] a;
-        if (items.length > 8 && (double) (size - 1) / items.length < 0.25) {
-            a = (T[]) new Object[items.length / 2];
-        } else {
-            a = (T[]) new Object[items.length];
-        }
-        System.arraycopy(items, 1, a, 0, size - 1);
-        items = a;
-        size -= 1;
-        return res;
-    }
-
-    public T removeLast() {
-        if (size == 0) {
-            return null;
-        }
-        T res = get(size - 1);
-        if (items.length > 8 && (double) (size - 1) / items.length < 0.25) {
-            T[] a = (T[]) new Object[items.length / 2];
-            System.arraycopy(items, 0, a, 0, size - 1);
-            items = a;
-        } else {
-            items[size - 1] = null;
-        }
-        size -= 1;
-        return res;
-    }
-
-    public T get(int index) {
-        return items[index];
-    }
-
-    public int size() {
+    public int size(){
         return size;
     }
+
+    public void printDeque(){
+        int i = nextFirst+1;
+        for (;i<=nextLast;i++){
+            System.out.print(item[i]);
+            System.out.print(" ");
+        }
+        System.out.println();
+    }
+
+    public T removeFirst(){
+        T a =item[nextFirst+1];
+        item[nextFirst+1] = null;
+        size -= 1;
+        nextFirst = nextFirst+1;
+        if (nextFirst == item.length)
+            nextFirst = 0;
+        return a;
+    }
+
+    public T removeLast(){
+        T a =item[nextLast-1];
+        item[nextLast-1] = null;
+        size -= 1;
+        nextLast = nextLast-1;
+        if(nextLast == -1)
+            nextLast = item.length-1;
+        return a;
+    }
+
+    public T get(int index){
+        return item[index];
+    }
+
 }

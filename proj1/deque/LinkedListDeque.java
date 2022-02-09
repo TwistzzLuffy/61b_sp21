@@ -1,32 +1,45 @@
 package deque;
 
-
-public class LinkedListDeque<T>  {
-    private final Node<T> head = new Node<>(null, null, null);
+public class LinkedListDeque <Luffy> {
+    private StaffNode sentinel;
     private int size;
+    private StaffNode viceSent;
+
+    public class StaffNode {
+        public Luffy item;
+        public StaffNode next;
+        public StaffNode prev;
+
+        public StaffNode(StaffNode p, Luffy i, StaffNode n) {
+            item = i;
+            next = n;
+            prev = p;
+        }
+    }
 
     public LinkedListDeque() {
-        head.next = head;
-        head.prev = head;
+        sentinel = new StaffNode(null, null, null);
+        sentinel.prev = sentinel;
+        sentinel.next = sentinel;
         size = 0;
     }
 
-    public LinkedListDeque(T item) {
-        head.next = new Node<>(item, head, head);
-        head.prev = head.next;
-        size = 1;
-    }
-
-    public void addFirst(T item) {
-        head.next = new Node<>(item, head, head.next);
-        head.next.next.prev = head.next;
+    public void addFirst(Luffy x) {
+        sentinel.next = new StaffNode(sentinel, x, sentinel.next);
+        sentinel.next.next.prev = sentinel.next;
         size += 1;
     }
 
-    public void addLast(T item) {
-        head.prev = new Node<>(item, head.prev, head);
-        head.prev.prev.next = head.prev;
+    public void addLast(Luffy x) {
+        sentinel.prev = new StaffNode(sentinel.prev, x, sentinel);
+        sentinel.prev.prev.next = sentinel.prev;
         size += 1;
+    }
+
+    public boolean isEmpty() {
+        if (sentinel.next == sentinel)
+            return true;
+        return false;
     }
 
     public int size() {
@@ -34,89 +47,61 @@ public class LinkedListDeque<T>  {
     }
 
     public void printDeque() {
-        String[] items = new String[size];
-        Node<T> p = head.next;
-        if (p == head) {
-            return;
-        }
-        for (int i = 0; i < size; i++) {
-            items[i] = p.item.toString();
+        StaffNode p = sentinel;
+        for (int s = 0; s < size; s++) {
+            System.out.print(p.next.item);
+            System.out.print(" ");
             p = p.next;
         }
-        System.out.println(String.join(" ", items));
-    }
-    public boolean isEmpty() {
-        if (head.next == head.prev)
-            return true;
-        return false;
-    }
-    public T removeFirst() {
-        if (isEmpty()) {
-            return null;
-        }
-        T item = head.next.item;
-        head.next = head.next.next;
-        head.next.prev = head;
-        size -= 1;
-        return item;
+        System.out.println();
     }
 
-    public T removeLast() {
-        if (isEmpty()) {
+    public Luffy removeFirst() {
+        if (this.isEmpty())
             return null;
+        else {
+            StaffNode p = sentinel;
+            Luffy a = p.next.item;
+            p.next = p.next.next;
+            p.next.prev = sentinel;
+            size -= 1;
+            return a;
         }
-        T item = head.prev.item;
-        head.prev = head.prev.prev;
-        head.prev.next = head;
-        size -= 1;
-        return item;
     }
 
-    public T get(int index) {
-        if (index < 0 || index > size - 1) {
+    public Luffy removeLast() {
+        if (this.isEmpty())
             return null;
+        else {
+            StaffNode p = sentinel;
+            Luffy a = p.prev.item;
+            p.prev = p.prev.prev;
+            p.prev.next = sentinel;
+            size -= 1;
+            return a;
         }
-        Node<T> currentNode = head.next;
-        for (int i = 0; i < size; i++) {
-            if (i == index) {
-                return currentNode.item;
-            }
-            currentNode = currentNode.next;
-        }
-        throw new AssertionError();
     }
 
-    public T getRecursive(int index) {
-        if (index < 0 || index > size - 1) {
-            return null;
+    public Luffy get(int index) {
+        int s = 0;
+        StaffNode p = sentinel;
+        while (s != index) {
+            p = p.next;
+            s++;
         }
-        return getRecursiveHelper(index, head.next);
+        return p.next.item;
     }
 
-    private T getRecursiveHelper(int index, Node<T> currentNode) {
+    public Luffy getRecursive(int index) {
+        if (isEmpty())
+            return null;
+        viceSent = viceSent.next;
         if (index == 0) {
-            return currentNode.item;
+            Luffy res = viceSent.item;
+            viceSent = sentinel;
+            return res;
         }
-        return getRecursiveHelper(index - 1, currentNode.next);
+        return getRecursive(index - 1);
     }
 
-    private static class Node<N> {
-        private final N item;
-        private Node<N> prev;
-        private Node<N> next;
-
-        Node(N i, Node<N> p, Node<N> n) {
-            item = i;
-            prev = p;
-            next = n;
-        }
-
-        @Override
-        public String toString() {
-            if (item == null) {
-                return "null";
-            }
-            return item.toString();
-        }
-    }
 }
