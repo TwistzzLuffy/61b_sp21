@@ -7,50 +7,52 @@ public class ArrayDeque<T> {
     private int size;
     private int nextFirst=3;
     private int nextLast=4;
+    private int length;
 
     /** Creates an empty list. */
     public ArrayDeque() {
-        item =(T[]) new Object[8];
+        length =8;
+        item =(T[]) new Object[length];
         size = 0;
+        nextFirst = length/2;
+        nextLast = length/2+1;
     }
 
     public void resize(int capcacity){
         T[] a = (T[]) new Object[capcacity];
-        System.arraycopy(item,0,a,0,item.length);
-        item = a;
+        if (capcacity > length || nextFirst > nextLast){
+            System.arraycopy(item,getIndex(nextFirst+1),
+                    a,0,length - getIndex(nextFirst+1));
+            System.arraycopy(item,length - getIndex(nextFirst+1),
+                    a,length - getIndex(nextFirst+1),getIndex(nextLast - 1) + 1);
+        }
+        else{
+            System.arraycopy(item,getIndex(nextFirst+1),a,0,size);
+        }
+    }
+
+    private int getIndex(int i){
+        return (i+length) % length;
     }
 
     public void addFirst(T x){
-        if (size == item.length){
+        if (nextFirst == nextLast){
             resize(size*2);
-            nextFirst = item.length-1;
-            nextLast = size;
         }
         item[nextFirst] = x;
         size +=1;
-        nextFirst -=1;
-        if (nextFirst == -1)
-            nextFirst = item.length-1;
+        nextFirst = getIndex(nextFirst+1);
     }
 
     public void addLast(T x){
-        if (size == item.length){
+        if (nextFirst == nextLast){
             resize(size*2);
-            nextFirst = item.length-1;
-            nextLast = size;
         }
         item[nextLast] = x;
         size +=1;
-        nextLast +=1;
-        if (nextLast == item.length)
-            nextLast = 0;
+        nextLast = getIndex(nextLast-1);
     }
 
-    public boolean isEmpty(){
-        if(nextFirst == nextLast)
-            return true;
-        return false;
-    }
 
     public int size(){
         return size;
@@ -59,59 +61,47 @@ public class ArrayDeque<T> {
     public void printDeque(){
         int i = nextFirst+1;
         for (;i<=nextLast;i++){
-            System.out.print(item[i]);
-            System.out.print(" ");
+            System.out.print(item[i] + " ");
         }
         System.out.println();
     }
 
-    public boolean TorF(){
-        float R = size/item.length;
-        if(R<0.25)
-            return true;
-        return false;
-    }
-
-    public void minArray(int capcacity){
-        T[] a = (T[]) new Object[capcacity];
-        System.arraycopy(item,0,a,0,size);
-        item = a;
-    }
 
     public T removeFirst(){
-        if (isEmpty())
-            return null;
-        T a =item[nextFirst+1];
-        item[nextFirst+1] = null;
-        size -= 1;
-        nextFirst = nextFirst+1;
-        if (nextFirst == item.length)
-            nextFirst = 0;
-        if (TorF()){
-            int min = size/2;
-            minArray(min);
+        int nextIndex = getIndex(nextFirst+1);
+        T result = item[nextIndex];
+        if(result != null){
+            item[nextIndex] = null;
+            nextFirst = nextIndex;
+            size--;
         }
-        return a;
+        if(size <0.25*length && size >16){
+            resize(length / 2);
+        }
+        return result;
     }
 
     public T removeLast(){
-        if (isEmpty())
-            return null;
-        T a =item[nextLast-1];
-        item[nextLast-1] = null;
-        size -= 1;
-        nextLast = nextLast-1;
-        if(nextLast == -1)
-            nextLast = item.length-1;
-        if (TorF()){
-            int min = size/2;
-            minArray(min);
+        int nextIndex = getIndex(nextLast - 1);
+        T result = item[nextIndex];
+        if(result != null){
+            item[nextIndex] = null;
+            nextLast = nextIndex;
+            size--;
         }
-        return a;
+        if(size <0.25*length && size >16){
+            resize(length / 2);
+        }
+        return result;
     }
 
     public T get(int index){
-        return item[index];
+        int i = getIndex(nextFirst + 1 +index );
+        return item[i];
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
     }
 
 
