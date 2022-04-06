@@ -2,7 +2,7 @@
  *  @author Josh Hug
  */
 package deque;
-public class ArrayDeque<T> {
+public class ArrayDeque<T> implements Deque<T> {
     private T[] item;
     private int size;
     private int nextFirst=3;
@@ -34,7 +34,7 @@ public class ArrayDeque<T> {
     private int getIndex(int i){
         return (i+length) % length;
     }
-
+@Override
     public void addFirst(T x){
         if (nextFirst == nextLast){
             resize(size*2);
@@ -100,9 +100,7 @@ public class ArrayDeque<T> {
         return item[i];
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
+
 
 
 }

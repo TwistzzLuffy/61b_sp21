@@ -1,107 +1,117 @@
 package deque;
+public class LinkedListDeque<T> implements Deque<T> {
 
-public class LinkedListDeque <Luffy> {
-    private StaffNode sentinel;
-    private int size;
-    private StaffNode viceSent;
+    private class Node {
+        T item;
+        Node prev;
+        Node next;
 
-    public class StaffNode {
-        public Luffy item;
-        public StaffNode next;
-        public StaffNode prev;
-
-        public StaffNode(StaffNode p, Luffy i, StaffNode n) {
+        Node(T i, Node p, Node n) {
             item = i;
-            next = n;
             prev = p;
+            next = n;
         }
     }
 
+    /**
+     * The first item (if it exists) is at sentinel.next.
+     */
+    private Node sentinel;
+    private int size;
+
+    /**
+     * Creates an empty linked list deque.
+     */
     public LinkedListDeque() {
-        sentinel = new StaffNode(null, null, null);
-        sentinel.prev = sentinel;
+        sentinel = new Node(null, null, null);
         sentinel.next = sentinel;
+        sentinel.prev = sentinel;
         size = 0;
     }
 
-    public void addFirst(Luffy x) {
-        sentinel.next = new StaffNode(sentinel, x, sentinel.next);
-        sentinel.next.next.prev = sentinel.next;
-        size += 1;
-    }
 
-    public void addLast(Luffy x) {
-        sentinel.prev = new StaffNode(sentinel.prev, x, sentinel);
-        sentinel.prev.prev.next = sentinel.prev;
-        size += 1;
-    }
 
-    public boolean isEmpty() {
-        if (sentinel.next == sentinel)
-            return true;
-        return false;
-    }
 
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
+    public void addFirst(T item) {
+        Node t = new Node(item, sentinel, sentinel.next);
+        sentinel.next.prev = t;
+        sentinel.next = t;
+        size++;
+    }
+
+    @Override
+    public void addLast(T item) {
+        Node t = new Node(item, sentinel.prev, sentinel);
+        sentinel.prev.next = t;
+        sentinel.prev = t;
+        size++;
+    }
+
+    @Override
+    public T removeFirst() {
+        if (sentinel.next != sentinel) {
+            T result = sentinel.next.item;
+            sentinel.next.item = null;
+            sentinel.next = sentinel.next.next;
+            sentinel.next.prev = sentinel;
+            size--;
+            return result;
+        }
+        return null;
+    }
+
+    @Override
+    public T removeLast() {
+        if (sentinel.prev != sentinel) {
+            T result = sentinel.prev.item;
+            sentinel.prev.item = null;
+            sentinel.prev = sentinel.prev.prev;
+            sentinel.prev.next = sentinel;
+            size--;
+            return result;
+        }
+        return null;
+    }
+
+    @Override
     public void printDeque() {
-        StaffNode p = sentinel;
-        for (int s = 0; s < size; s++) {
-            System.out.print(p.next.item);
-            System.out.print(" ");
+        Node p = sentinel.next;
+        while (p != sentinel) {
+            System.out.print(p.item);
+            if (p.next != sentinel) {
+                System.out.print(" ");
+            }
             p = p.next;
         }
-        System.out.println();
     }
 
-    public Luffy removeFirst() {
-        if (this.isEmpty())
-            return null;
-        else {
-            StaffNode p = sentinel;
-            Luffy a = p.next.item;
-            p.next = p.next.next;
-            p.next.prev = sentinel;
-            size -= 1;
-            return a;
-        }
-    }
-
-    public Luffy removeLast() {
-        if (this.isEmpty())
-            return null;
-        else {
-            StaffNode p = sentinel;
-            Luffy a = p.prev.item;
-            p.prev = p.prev.prev;
-            p.prev.next = sentinel;
-            size -= 1;
-            return a;
-        }
-    }
-
-    public Luffy get(int index) {
-        int s = 0;
-        StaffNode p = sentinel;
-        while (s != index) {
+    @Override
+    public T get(int index) {
+        int i = 0;
+        Node p = sentinel.next;
+        while (p != sentinel && i != index) {
             p = p.next;
-            s++;
+            i++;
         }
-        return p.next.item;
+        return p.item;
     }
 
-    public Luffy getRecursive(int index) {
-        if (isEmpty())
-            return null;
-        viceSent = viceSent.next;
-        if (index == 0) {
-            Luffy res = viceSent.item;
-            viceSent = sentinel;
-            return res;
-        }
-        return getRecursive(index - 1);
+    public T getRecursive(int index) {
+        Node first = sentinel.next;
+        return getRecursiveHelper(first, index);
     }
 
+    private T getRecursiveHelper(Node p, int index) {
+        if (index == 0 || p == sentinel) {
+            return p.item;
+        } else {
+            return getRecursiveHelper(p.next, index - 1);
+        }
+    }
 }
