@@ -51,23 +51,16 @@ public class Repository {
     /**
      * add
      */
-    public static void gitAdd(String fileName) throws IOException {
-        try {
-            gitAdd(fileName);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
+    public static void gitAdd(String fileName)  {
         File stagFile = Utils.join(CWD,fileName);
         Blob blob0 = new Blob(fileName);
         blob0.txtContent = readContentsAsString(stagFile);
         String fileIndex = sha1(blob0);
-        File bobFile = new File(Object_DIR+"fileIndex");
+        File bobFile = Utils.join(Object_DIR,fileIndex);
         if (bobFile.exists()){
             System.out.println("File does not exist.");
             System.exit(0);
         }
-        bobFile.createNewFile();
         blob0.insertFileIndex(fileIndex);
         writeContents(bobFile,blob0);
 
