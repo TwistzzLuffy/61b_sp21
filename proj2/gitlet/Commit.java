@@ -2,6 +2,7 @@ package gitlet;
 
 // TODO: any imports you need here
 
+import java.util.Calendar;
 import java.util.Date; // TODO: You'll likely use this in this class
 
 /** Represents a gitlet commit object.
@@ -23,4 +24,20 @@ public class Commit {
     private String message;
 
     /* TODO: fill in the rest of this class. */
+    /**
+     * the timestamp
+     */
+    private long Date;
+    private String Author;
+    private String emaill;
+    private String treeIndex;
+
+    public Commit(){
+        this.message = "initial commit";
+        this.Date = java.util.Date.UTC(1970, Calendar.JANUARY,1,
+                00,00,00);
+        this.Author  = null;
+        this.emaill = null;
+    }
+
 }

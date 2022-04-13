@@ -26,4 +26,15 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
     /* TODO: fill in the rest of this class. */
+    /** create .gitlet*/
+    public static void setupPersistence(){
+        GITLET_DIR.mkdir();
+    }
+
+    /**
+     * init
+     */
+    public static void gitInit(){
+        Commit commit_0 = new Commit();
+    }
 }
