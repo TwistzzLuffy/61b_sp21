@@ -41,11 +41,10 @@ public class Repository {
      * init
      */
     public static void gitInit(){
-        if(GITLET_DIR.exists()){
+        /*if(GITLET_DIR.exists()){
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
-        }
-
+        }*/
         Commit commit_0 = new Commit();
     }
 
