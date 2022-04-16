@@ -1,7 +1,9 @@
 package gitlet;
 
 // TODO: any imports you need here
-
+import static gitlet.Utils.*;
+import java.io.File;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date; // TODO: You'll likely use this in this class
 
@@ -11,15 +13,17 @@ import java.util.Date; // TODO: You'll likely use this in this class
  *
  *  @author TODO
  */
-public class Commit {
+public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
      *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
+     *
      */
-
+    public static final File CWD = new File(System.getProperty("user.dir"));
+    public static final File Commit_DIR = Utils.join(CWD,".gitlet/object");
     /** The message of this Commit. */
     private String message;
 
@@ -31,13 +35,27 @@ public class Commit {
     private String Author;
     private String emaill;
     private String treeIndex;
+    private String sha1;
+    private Date timestamp;
 
     public Commit(){
-        this.message = "initial commit";
-        this.Date = java.util.Date.UTC(1970, Calendar.JANUARY,1,
-                00,00,00);
-        this.Author  = null;
-        this.emaill = null;
+        message = "initial commit";
+        timestamp = new Date(0);
+        sha1 =  Utils.sha1(Utils.serialize(this));
     }
 
+    /**
+     *
+     * @return the sha1 of this.commit
+     */
+    public String sha1(){
+        return this.sha1;
+    }
+
+    /**
+     * to save this commit
+     */
+    public void Save(){
+        writeObject(myUtils.makeFile(Commit_DIR,sha1),this);
+    }
 }

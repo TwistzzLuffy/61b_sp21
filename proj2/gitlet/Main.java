@@ -13,7 +13,6 @@ public class Main {
     public static void main(String[] args) {
         // TODO: what if args is empty?
         String firstArg = args[0];
-        Repository.setupPersistence();
         switch(firstArg) {
             case "init":
                 // TODO: handle the `init` command
@@ -21,7 +20,7 @@ public class Main {
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
-                Repository.gitAdd(args[1]);
+                //Repository.gitAdd(args[1]);
                 break;
             // TODO: FILL THE REST IN
         }
