@@ -4,8 +4,7 @@ package gitlet;
 import static gitlet.Utils.*;
 import java.io.File;
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.*;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -31,12 +30,11 @@ public class Commit implements Serializable {
     /**
      * the timestamp
      */
-    private long Date;
-    private String Author;
-    private String emaill;
-    private String treeIndex;
+
     private String sha1;
     private Date timestamp;
+    private String parentIndex;
+    private LinkedList<String> bobIndex;
 
     public Commit(){
         message = "initial commit";
@@ -44,6 +42,12 @@ public class Commit implements Serializable {
         sha1 =  Utils.sha1(Utils.serialize(this));
     }
 
+    public Commit(String message,String parentIndex){
+        this.message = message;
+        timestamp = new Date();
+        sha1 =  Utils.sha1(Utils.serialize(this));
+        this.parentIndex = parentIndex;
+    }
     /**
      *
      * @return the sha1 of this.commit
@@ -58,4 +62,14 @@ public class Commit implements Serializable {
     public void Save(){
         writeObject(myUtils.makeFile(Commit_DIR,sha1),this);
     }
+
+    public void addStaging(TreeMap<String,String> Staging){
+        for (Map.Entry<String, String> i : Staging.entrySet()) {
+            if (!Staging.containsValue(i.getValue())) {
+                bobIndex.addFirst(i.getValue());
+//                this.blobMapToFileName.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
 }

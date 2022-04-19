@@ -19,12 +19,5 @@ public class myUtils {
         File document = join(floder,sha1.substring(2));
         return document;
     }
-    /**
-     * examined document exsist
-     */
-    public static boolean findFile(File f){
-        if(f.exists())
-            return true;
-        return false;
-    }
+
 }

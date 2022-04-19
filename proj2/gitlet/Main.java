@@ -20,9 +20,13 @@ public class Main {
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
-                //Repository.gitAdd(args[1]);
+                Repository.gitAdd(args[1]);
                 break;
             // TODO: FILL THE REST IN
+            case "commit":
+                // TODO: handle the `add [filename]` command
+                Repository.gitCommit(args[1]);
+                break;
         }
     }
 }

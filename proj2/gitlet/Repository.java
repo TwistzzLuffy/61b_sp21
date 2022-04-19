@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import static gitlet.Utils.*;
 
@@ -30,12 +31,13 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
     /** store the bob,tree,commit directory*/
-    public static final File Object_DIR = join(CWD,".gitlet/object");
+    public static final File Object_DIR = join(GITLET_DIR,"object");
 
-    /**
-     * create staging area
-     */
-    public static final File Staging_DIR = join(Object_DIR,"staging");
+    public static final File Head_DIR = join(GITLET_DIR,"heads");
+
+    public static final File bob_DIR = join(GITLET_DIR,"bob");
+
+    public static TreeMap<String,String> Staging = new TreeMap<String,String>();
     /* TODO: fill in the rest of this class. */
     /** create .gitlet*/
 
@@ -50,9 +52,12 @@ public class Repository {
 //        }
         GITLET_DIR.mkdir();
         Object_DIR.mkdir();
-        Staging_DIR.mkdir();
+        Head_DIR.mkdir();
+        bob_DIR.mkdir();
+        File heads = join(Head_DIR,"mater");
         Commit commit_0 = new Commit();
         commit_0.Save();
+        writeObject(heads,commit_0);
     }
 
     /**
@@ -61,5 +66,39 @@ public class Repository {
     public static void gitAdd(String fileName){
         Blob blob = new Blob(fileName);
         blob.Save();
+    }
+
+    /**
+     * staging added file
+     *
+     */
+    public static void Staging(String fileName,String sha1){
+        File stagFile = join(Object_DIR,"stage");
+        Staging.put(fileName,sha1);
+        writeObject(stagFile,Staging);
+    }
+
+    /**
+     * commit
+     */
+    public static void gitCommit(String message){
+        File stagFile = join(Object_DIR,"stage");
+        Staging = readObject(stagFile,TreeMap.class);
+        if (Staging.isEmpty()){
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }if (message.isBlank()){
+            System.out.println("Please enter a commit message.");
+            return;
+        }
+        File heads = join(Head_DIR,"mater");
+        Commit head = readObject(heads,Commit.class);
+        Commit commit = new Commit(message,head.sha1());
+        //make heads store the new commit
+        writeObject(heads,commit);
+        //
+        commit.addPrviousCommit();
+        //
+        commit.addStaging(Staging);
     }
 }

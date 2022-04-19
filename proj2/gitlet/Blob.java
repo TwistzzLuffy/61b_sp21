@@ -12,16 +12,21 @@ public class Blob {
      * C W D
      */
     public static final File CWD = new File(System.getProperty("user.dir"));
+    /** The .gitlet directory. */
+    public static final File GITLET_DIR = join(CWD, ".gitlet");
+
+    /** store the bob,tree,commit directory*/
+    public static final File Object_DIR = join(GITLET_DIR,"object");
     /**
      * the direction of Bob
      */
-    public static final File bob_DIR = join(CWD,".gitlet/object");
-
+    public static final File bob_DIR = join(GITLET_DIR,"bob");
+//    public static final File bob_DIR = join(CWD,".gitlet/object");
     /**
      * Stage fi
      */
 
-    public static final HashMap Staging = new HashMap();
+
 
     private String fileName;
     private String sha1;
@@ -36,8 +41,8 @@ public class Blob {
 
     public void Save(){
         File readFile = join(CWD,this.fileName);
-        Staging(fileName);
-        if (findFile(readFile)){
+        Repository.Staging(fileName,sha1);
+        if (!readFile.exists()){
             System.out.println("File does not exist.");
             System.exit(0);
         }
@@ -45,13 +50,5 @@ public class Blob {
         writeContents(makeFile(bob_DIR,sha1),content);
     }
 
-    /**
-     * staging added file
-     * @param file added file
-     */
-    public void Staging(String file){
-        File stagFile = join(bob_DIR,"staging");
-        Staging.put(this.fileName,sha1);
-        writeObject(stagFile,Staging);
-    }
+
 }
