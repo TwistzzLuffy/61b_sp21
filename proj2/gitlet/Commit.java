@@ -40,6 +40,7 @@ public class Commit implements Serializable {
         message = "initial commit";
         timestamp = new Date(0);
         sha1 =  Utils.sha1(Utils.serialize(this));
+        bobIndex = new LinkedList<String>();
     }
 
     public Commit(String message,String parentIndex){
@@ -47,6 +48,7 @@ public class Commit implements Serializable {
         timestamp = new Date();
         sha1 =  Utils.sha1(Utils.serialize(this));
         this.parentIndex = parentIndex;
+        bobIndex = new LinkedList<String>();
     }
     /**
      *
@@ -63,13 +65,30 @@ public class Commit implements Serializable {
         writeObject(myUtils.makeFile(Commit_DIR,sha1),this);
     }
 
+    /**
+     *  commit refer to the bobfile of staging
+     * @param Staging store the added files
+     */
     public void addStaging(TreeMap<String,String> Staging){
         for (Map.Entry<String, String> i : Staging.entrySet()) {
-            if (!Staging.containsValue(i.getValue())) {
-                bobIndex.addFirst(i.getValue());
+            if (!Staging.containsValue(i.getKey())) {
+                bobIndex.add(i.getValue());
 //                this.blobMapToFileName.put(entry.getKey(), entry.getValue());
             }
         }
     }
+
+    public LinkedList<String>  getBobIndex(){
+        return this.bobIndex;
+    }
+
+    public void addPrviousCommit(LinkedList<String> preBObIndex){
+        for (String i : preBObIndex){
+            if (!this.bobIndex.contains(i)){
+                bobIndex.add(i);
+            }
+        }
+    }
+
 
 }

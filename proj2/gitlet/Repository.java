@@ -54,7 +54,7 @@ public class Repository {
         Object_DIR.mkdir();
         Head_DIR.mkdir();
         bob_DIR.mkdir();
-        File heads = join(Head_DIR,"mater");
+        File heads = join(Head_DIR,"master");
         Commit commit_0 = new Commit();
         commit_0.Save();
         writeObject(heads,commit_0);
@@ -91,14 +91,16 @@ public class Repository {
             System.out.println("Please enter a commit message.");
             return;
         }
-        File heads = join(Head_DIR,"mater");
+        File heads = join(Head_DIR,"master");
+        // head refer to the previous commit
         Commit head = readObject(heads,Commit.class);
         Commit commit = new Commit(message,head.sha1());
-        //make heads store the new commit
-        writeObject(heads,commit);
-        //
-        commit.addPrviousCommit();
+        if(head.getBobIndex() != null){
+            commit.addPrviousCommit(head.getBobIndex());
+        }
         //
         commit.addStaging(Staging);
+        //make heads store the new commit
+        writeObject(heads,commit);
     }
 }
