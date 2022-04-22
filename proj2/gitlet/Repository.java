@@ -147,7 +147,9 @@ public class Repository {
         head.printfCommit();
         while(sign){
             parentSha1 = head.getParentIndex();
-            File parentFile = join(GITLET_DIR,parentSha1);
+            if (parentSha1 == null)
+                break;
+            File parentFile = join(Object_DIR,parentSha1);
             log = readObject(parentFile,Commit.class);
             sign= log.printfCommit();
         }
