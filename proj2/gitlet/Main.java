@@ -31,6 +31,10 @@ public class Main {
                 // TODO: handle the `add [filename]` command
                 Repository.gitRm(args[1]);
                 break;
+            case "log":
+                // TODO: handle the `add [filename]` command
+                Repository.log();
+                break;
         }
     }
 }

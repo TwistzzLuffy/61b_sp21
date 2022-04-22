@@ -4,6 +4,8 @@ package gitlet;
 import static gitlet.Utils.*;
 import java.io.File;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /** Represents a gitlet commit object.
@@ -32,20 +34,23 @@ public class Commit implements Serializable {
      */
 
     private String sha1;
-    private Date timestamp;
+    private String timestamp;
     private String parentIndex;
     private TreeMap<String,String> bobIndex;// store evey file's sha1
 
     public Commit(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy Z");
         message = "initial commit";
-        timestamp = new Date(0);
+        timestamp = ZonedDateTime.now().format(formatter);
         sha1 =  Utils.sha1(Utils.serialize(this));
         bobIndex = new TreeMap<String,String>();
+        this.parentIndex = null;
     }
 
     public Commit(String message,String parentIndex){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy Z");
         this.message = message;
-        timestamp = new Date();
+        timestamp = ZonedDateTime.now().format(formatter);
         sha1 =  Utils.sha1(Utils.serialize(this));
         this.parentIndex = parentIndex;
         bobIndex = new TreeMap<String,String>();
@@ -62,7 +67,7 @@ public class Commit implements Serializable {
      * to save this commit
      */
     public void Save(){
-        writeObject(myUtils.makeFile(Commit_DIR,sha1),this);
+        writeObject(join(Commit_DIR,sha1),this);
     }
 
     /**
@@ -96,4 +101,24 @@ public class Commit implements Serializable {
         }
     }
 
+    public boolean printfCommit(){
+        if (message.equals("initial commit")){
+            System.out.println("===");
+            System.out.println("commit:"+sha1);
+            System.out.println("Date:" +timestamp);
+            System.out.println(message);
+            System.out.println();
+            return false;
+        }
+        System.out.println("====");
+        System.out.println("commit:"+sha1);
+        System.out.println("Date:" +timestamp);
+        System.out.println(message);
+        System.out.println();
+        return true;
+    }
+
+    public String getParentIndex(){
+        return this.parentIndex;
+    }
 }

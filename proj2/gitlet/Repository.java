@@ -100,6 +100,8 @@ public class Repository {
         if(head.getBobIndex() != null){
             commit.addPrviousCommit(head.getBobIndex());
         }
+        //store commit in object_DIR
+        commit.Save();
         //
         commit.addStaging(StageAdd);
         //make heads store the new commit
@@ -134,6 +136,23 @@ public class Repository {
             restrictedDelete(join(CWD,filename));
             writeObject(stagRemoveFile,StageRemove);
         }
+    }
+
+    public static void log(){
+        File heads = join(Head_DIR,"master");
+        Commit head = readObject(heads,Commit.class);
+        Commit log;
+        String parentSha1 ;
+        boolean sign = true;
+        head.printfCommit();
+        while(sign){
+            parentSha1 = head.getParentIndex();
+            File parentFile = join(GITLET_DIR,parentSha1);
+            log = readObject(parentFile,Commit.class);
+            sign= log.printfCommit();
+        }
+
+
 
     }
 }
