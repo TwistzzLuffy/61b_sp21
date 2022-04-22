@@ -34,13 +34,13 @@ public class Commit implements Serializable {
     private String sha1;
     private Date timestamp;
     private String parentIndex;
-    private LinkedList<String> bobIndex;
+    private TreeMap<String,String> bobIndex;// store evey file's sha1
 
     public Commit(){
         message = "initial commit";
         timestamp = new Date(0);
         sha1 =  Utils.sha1(Utils.serialize(this));
-        bobIndex = new LinkedList<String>();
+        bobIndex = new TreeMap<String,String>();
     }
 
     public Commit(String message,String parentIndex){
@@ -48,7 +48,7 @@ public class Commit implements Serializable {
         timestamp = new Date();
         sha1 =  Utils.sha1(Utils.serialize(this));
         this.parentIndex = parentIndex;
-        bobIndex = new LinkedList<String>();
+        bobIndex = new TreeMap<String,String>();
     }
     /**
      *
@@ -71,21 +71,21 @@ public class Commit implements Serializable {
      */
     public void addStaging(TreeMap<String,String> Staging){
         for (Map.Entry<String, String> i : Staging.entrySet()) {
-            if (!Staging.containsValue(i.getKey())) {
-                bobIndex.add(i.getValue());
+            if (!bobIndex.containsKey(i.getKey())) {
+                bobIndex.put(i.getKey(),i.getValue());
 //                this.blobMapToFileName.put(entry.getKey(), entry.getValue());
             }
         }
     }
 
-    public LinkedList<String>  getBobIndex(){
+    public TreeMap<String,String>  getBobIndex(){
         return this.bobIndex;
     }
 
-    public void addPrviousCommit(LinkedList<String> preBObIndex){
-        for (String i : preBObIndex){
-            if (!this.bobIndex.contains(i)){
-                bobIndex.add(i);
+    public void addPrviousCommit(TreeMap<String,String> preBObIndex){
+        for (Map.Entry<String, String> i : preBObIndex.entrySet()){
+            if (!this.bobIndex.containsKey(i.getKey())){
+                bobIndex.put(i.getKey(),i.getValue());
             }
         }
     }

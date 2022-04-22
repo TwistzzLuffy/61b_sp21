@@ -39,7 +39,7 @@ public class Blob {
      * read added file to bob
      */
 
-    public void Save(){
+    public void SaveForAdd(){
         File readFile = join(CWD,this.fileName);
         Repository.Staging(fileName,sha1);
         if (!readFile.exists()){

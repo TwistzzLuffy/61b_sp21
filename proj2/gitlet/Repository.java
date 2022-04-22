@@ -1,8 +1,7 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import static gitlet.Utils.*;
@@ -36,8 +35,10 @@ public class Repository {
     public static final File Head_DIR = join(GITLET_DIR,"heads");
 
     public static final File bob_DIR = join(GITLET_DIR,"bob");
-
-    public static TreeMap<String,String> Staging = new TreeMap<String,String>();
+    // finish the link between add and commit command
+    public static TreeMap<String,String> StageAdd = new TreeMap<String,String>();
+    // finish the link between rm and commit command
+    public static TreeMap<String,String> StageRemove = new TreeMap<String,String>();
     /* TODO: fill in the rest of this class. */
     /** create .gitlet*/
 
@@ -65,7 +66,7 @@ public class Repository {
      */
     public static void gitAdd(String fileName){
         Blob blob = new Blob(fileName);
-        blob.Save();
+        blob.SaveForAdd();
     }
 
     /**
@@ -73,18 +74,18 @@ public class Repository {
      *
      */
     public static void Staging(String fileName,String sha1){
-        File stagFile = join(Object_DIR,"stage");
-        Staging.put(fileName,sha1);
-        writeObject(stagFile,Staging);
+        File stagFile = join(Object_DIR,"StageAdd");
+        StageAdd.put(fileName,sha1);
+        writeObject(stagFile, StageAdd);
     }
 
     /**
      * commit
      */
     public static void gitCommit(String message){
-        File stagFile = join(Object_DIR,"stage");
-        Staging = readObject(stagFile,TreeMap.class);
-        if (Staging.isEmpty()){
+        File stagAddFile = join(Object_DIR,"StageAdd");
+        StageAdd = readObject(stagAddFile,TreeMap.class);
+        if (StageAdd.isEmpty()){
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }if (message.isBlank()){
@@ -99,8 +100,39 @@ public class Repository {
             commit.addPrviousCommit(head.getBobIndex());
         }
         //
-        commit.addStaging(Staging);
+        commit.addStaging(StageAdd);
         //make heads store the new commit
         writeObject(heads,commit);
+        //clean the StageAdd and save StagAdd
+        StageAdd.clear();
+        writeObject(stagAddFile,StageAdd);
+        //delete the bob file in stageRemove
+        deleteStageRemoveFile();
+    }
+    public static void deleteStageRemoveFile(){
+        if (!StageRemove.isEmpty()){
+            for (Map.Entry<String, String> i : StageRemove.entrySet()){
+                File bobdir = join(bob_DIR,i.getValue().substring(0,2));
+                File bobFile = join(bobdir,i.getValue().substring(2));
+                restrictedDelete(bobFile);
+                restrictedDelete(bobdir);
+            }
+        }
+    }
+
+    public static void gitRm(String filename){
+        Commit head = readObject(join(Head_DIR,"master"),Commit.class);
+        StageAdd = readObject(join(Object_DIR,"StageAdd"),TreeMap.class);
+        // if file in stageAdd , unstage it
+        if (StageAdd.containsKey(filename)){
+            StageAdd.remove(filename);
+        }
+        //if file in current commit ,add to stageRemove and delete it in CWD
+        TreeMap<String,String> bobIndex = head.getBobIndex();
+        if (bobIndex.containsKey(filename)){
+            StageRemove.put(filename,bobIndex.get(filename));
+            restrictedDelete(join(CWD,filename));
+        }
+
     }
 }
