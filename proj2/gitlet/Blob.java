@@ -32,7 +32,7 @@ public class Blob {
     private String sha1;
     public Blob(String fN){
         fileName = fN;
-        sha1 = readContentsAsString(join(CWD,fileName));
+        sha1 = sha1(readContentsAsString(join(CWD,fileName)));
     }
 
     /**
@@ -47,6 +47,7 @@ public class Blob {
             System.exit(0);
         }
         byte[] content = readContents(readFile);
+
         writeContents(makeFile(bob_DIR,sha1),content);
     }
 

@@ -84,6 +84,7 @@ public class Repository {
      */
     public static void gitCommit(String message){
         File stagAddFile = join(Object_DIR,"StageAdd");
+        File stagRemoveFile = join(Object_DIR,"StageRemove");
         StageAdd = readObject(stagAddFile,TreeMap.class);
         if (StageAdd.isEmpty()){
             System.out.println("No changes added to the commit.");
@@ -107,22 +108,21 @@ public class Repository {
         StageAdd.clear();
         writeObject(stagAddFile,StageAdd);
         //delete the bob file in stageRemove
-        deleteStageRemoveFile();
-    }
-    public static void deleteStageRemoveFile(){
-        if (!StageRemove.isEmpty()){
-            for (Map.Entry<String, String> i : StageRemove.entrySet()){
-                File bobdir = join(bob_DIR,i.getValue().substring(0,2));
-                File bobFile = join(bobdir,i.getValue().substring(2));
-                restrictedDelete(bobFile);
-                restrictedDelete(bobdir);
+        if (stagRemoveFile.exists()) {
+            StageRemove = readObject(stagRemoveFile,TreeMap.class);
+            if (!StageRemove.isEmpty()){
+                commit.deleteStageRemoveFile(StageRemove);
             }
         }
+        StageRemove.clear();
+        writeObject(stagRemoveFile,StageRemove);
     }
+
 
     public static void gitRm(String filename){
         Commit head = readObject(join(Head_DIR,"master"),Commit.class);
         StageAdd = readObject(join(Object_DIR,"StageAdd"),TreeMap.class);
+        File stagRemoveFile = join(Object_DIR,"StageRemove");
         // if file in stageAdd , unstage it
         if (StageAdd.containsKey(filename)){
             StageAdd.remove(filename);
@@ -132,6 +132,7 @@ public class Repository {
         if (bobIndex.containsKey(filename)){
             StageRemove.put(filename,bobIndex.get(filename));
             restrictedDelete(join(CWD,filename));
+            writeObject(stagRemoveFile,StageRemove);
         }
 
     }

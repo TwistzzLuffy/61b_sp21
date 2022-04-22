@@ -90,5 +90,10 @@ public class Commit implements Serializable {
         }
     }
 
+    public void deleteStageRemoveFile(TreeMap<String,String>StageRemove){
+        for (Map.Entry<String,String> i : StageRemove.entrySet()){
+            this.bobIndex.remove(i.getKey());
+        }
+    }
 
 }
