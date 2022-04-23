@@ -1,6 +1,8 @@
 package gitlet;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -74,7 +76,7 @@ public class Repository {
      *
      */
     public static void Staging(String fileName,String sha1){
-        File stagFile = join(Object_DIR,"StageAdd");
+        File stagFile = join(GITLET_DIR ,"StageAdd");
         StageAdd.put(fileName,sha1);
         writeObject(stagFile, StageAdd);
     }
@@ -83,8 +85,8 @@ public class Repository {
      * commit
      */
     public static void gitCommit(String message){
-        File stagAddFile = join(Object_DIR,"StageAdd");
-        File stagRemoveFile = join(Object_DIR,"StageRemove");
+        File stagAddFile = join(GITLET_DIR ,"StageAdd");
+        File stagRemoveFile = join(GITLET_DIR ,"StageRemove");
         StageAdd = readObject(stagAddFile,TreeMap.class);
         if (StageAdd.isEmpty()){
             System.out.println("No changes added to the commit.");
@@ -123,8 +125,8 @@ public class Repository {
 
     public static void gitRm(String filename){
         Commit head = readObject(join(Head_DIR,"master"),Commit.class);
-        StageAdd = readObject(join(Object_DIR,"StageAdd"),TreeMap.class);
-        File stagRemoveFile = join(Object_DIR,"StageRemove");
+        StageAdd = readObject(join(GITLET_DIR ,"StageAdd"),TreeMap.class);
+        File stagRemoveFile = join(GITLET_DIR ,"StageRemove");
         // if file in stageAdd , unstage it
         if (StageAdd.containsKey(filename)){
             StageAdd.remove(filename);
@@ -149,12 +151,19 @@ public class Repository {
             parentSha1 = head.getParentIndex();
             if (parentSha1 == null)
                 break;
-            File parentFile = join(Object_DIR,parentSha1);
+            File parentFile = join(Object_DIR ,parentSha1.substring(0,2),parentSha1.substring(2));
             log = readObject(parentFile,Commit.class);
             sign= log.printfCommit();
         }
+    }
 
-
+    public static void globaLog(){
+        List<String> file = plainFilenamesIn(Object_DIR);
+        Commit globalCommit ;
+        for (String i : file){
+            globalCommit = readObject(join(Object_DIR,i),Commit.class);
+            globalCommit.printfCommit();
+        }
 
     }
 }
