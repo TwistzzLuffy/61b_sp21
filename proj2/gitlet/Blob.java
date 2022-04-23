@@ -32,6 +32,7 @@ public class Blob {
         sha1 = sha1(readContentsAsString(join(CWD,fileName)));
     }
 
+
     /**
      * read added file to bob
      */
@@ -39,12 +40,11 @@ public class Blob {
     public void SaveForAdd(){
         File readFile = join(CWD,this.fileName);
         Repository.Staging(fileName,sha1);
-        if (!readFile.exists()){
+        if(!readFile.exists()){
             System.out.println("File does not exist.");
             System.exit(0);
         }
         byte[] content = readContents(readFile);
-
         writeContents(makeFile(BOB_DIR,sha1),content);
     }
 

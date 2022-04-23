@@ -149,7 +149,7 @@ public class Repository {
         head.printfCommit();
         while(sign){
             parentSha1 = head.getParentIndex();
-            if (parentSha1 == null)
+            if(parentSha1 == null)
                 break;
             File parentFile = join(Object_DIR ,parentSha1.substring(0,2),parentSha1.substring(2));
             log = readObject(parentFile,Commit.class);
@@ -171,7 +171,7 @@ public class Repository {
         Commit findCommit ;
         for(String i : file){
             findCommit = readObject(join(Object_DIR,i),Commit.class);
-            if (findCommit.getMessage().equals(message)){
+            if(findCommit.getMessage().equals(message)){
                 System.out.println(findCommit.getsha1());
             }
         }
