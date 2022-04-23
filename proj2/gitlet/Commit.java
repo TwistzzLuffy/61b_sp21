@@ -59,7 +59,7 @@ public class Commit implements Serializable {
      *
      * @return the sha1 of this.commit
      */
-    public String sha1(){
+    public String getsha1(){
         return this.sha1;
     }
 
@@ -121,4 +121,6 @@ public class Commit implements Serializable {
     public String getParentIndex(){
         return this.parentIndex;
     }
+
+    public String getMessage(){return this.message;}
 }

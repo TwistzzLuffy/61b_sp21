@@ -39,6 +39,10 @@ public class Main {
                 // TODO: handle the `add [filename]` command
                 Repository.globaLog();
                 break;
+            case "find":
+                // TODO: handle the `add [filename]` command
+                Repository.find(args[1]);
+                break;
         }
     }
 }

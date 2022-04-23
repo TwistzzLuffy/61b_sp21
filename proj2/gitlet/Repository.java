@@ -98,7 +98,7 @@ public class Repository {
         File heads = join(Head_DIR,"master");
         // head refer to the previous commit
         Commit head = readObject(heads,Commit.class);
-        Commit commit = new Commit(message,head.sha1());
+        Commit commit = new Commit(message,head.getsha1());
         if(head.getBobIndex() != null){
             commit.addPrviousCommit(head.getBobIndex());
         }
@@ -163,6 +163,17 @@ public class Repository {
         for (String i : file){
             globalCommit = readObject(join(Object_DIR,i),Commit.class);
             globalCommit.printfCommit();
+        }
+    }
+
+    public static void find(String message){
+        List<String> file = plainFilenamesIn(Object_DIR);
+        Commit findCommit ;
+        for(String i : file){
+            findCommit = readObject(join(Object_DIR,i),Commit.class);
+            if (findCommit.getMessage().equals(message)){
+                System.out.println(findCommit.getsha1());
+            }
         }
     }
 }
