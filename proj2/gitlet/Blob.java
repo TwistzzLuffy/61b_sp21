@@ -1,9 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.sql.Savepoint;
-import java.util.HashMap;
-
 import static gitlet.myUtils.*;
 import static gitlet.Utils.*;
 
@@ -13,15 +10,15 @@ public class Blob {
      */
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
-    public static final File GITLET_DIR = join(CWD, ".gitlet");
+    public static final File GITLET_DIR = join(CWD,".gitlet");
 
     /** store the bob,tree,commit directory*/
-    public static final File Object_DIR = join(GITLET_DIR,"object");
+    public static final File OBJECT_DIR = join(GITLET_DIR,"object");
     /**
      * the direction of Bob
      */
-    public static final File bob_DIR = join(GITLET_DIR,"bob");
-//    public static final File bob_DIR = join(CWD,".gitlet/object");
+    public static final File BOB_DIR = join(GITLET_DIR,"bob");
+//    public static final File BOB_DIR = join(CWD,".gitlet/object");
     /**
      * Stage fi
      */
@@ -48,7 +45,7 @@ public class Blob {
         }
         byte[] content = readContents(readFile);
 
-        writeContents(makeFile(bob_DIR,sha1),content);
+        writeContents(makeFile(BOB_DIR,sha1),content);
     }
 
 
