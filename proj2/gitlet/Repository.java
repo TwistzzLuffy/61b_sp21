@@ -164,6 +164,5 @@ public class Repository {
             globalCommit = readObject(join(Object_DIR,i),Commit.class);
             globalCommit.printfCommit();
         }
-
     }
 }
