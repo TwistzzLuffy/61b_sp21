@@ -43,6 +43,10 @@ public class Main {
                 // TODO: handle the `add [filename]` command
                 Repository.find(args[1]);
                 break;
+            case "status":
+                // TODO: handle the `add [filename]` command
+                Repository.status();
+                break;
         }
     }
 }

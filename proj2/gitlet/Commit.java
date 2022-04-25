@@ -83,9 +83,7 @@ public class Commit implements Serializable {
         }
     }
 
-    public TreeMap<String,String>  getBobIndex(){
-        return this.bobIndex;
-    }
+
 
     public void addPrviousCommit(TreeMap<String,String> preBObIndex){
         for (Map.Entry<String, String> i : preBObIndex.entrySet()){
@@ -123,4 +121,8 @@ public class Commit implements Serializable {
     }
 
     public String getMessage(){return this.message;}
+
+    public TreeMap<String,String>  getBobIndex(){
+        return this.bobIndex;
+    }
 }

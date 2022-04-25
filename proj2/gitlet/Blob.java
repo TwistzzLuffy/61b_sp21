@@ -11,7 +11,6 @@ public class Blob {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD,".gitlet");
-
     /** store the bob,tree,commit directory*/
     public static final File OBJECT_DIR = join(GITLET_DIR,"object");
     /**
@@ -19,11 +18,6 @@ public class Blob {
      */
     public static final File BOB_DIR = join(GITLET_DIR,"bob");
 //    public static final File BOB_DIR = join(CWD,".gitlet/object");
-    /**
-     * Stage fi
-     */
-
-
 
     private String fileName;
     private String sha1;
@@ -45,8 +39,6 @@ public class Blob {
             System.exit(0);
         }
         byte[] content = readContents(readFile);
-        writeContents(makeFile(BOB_DIR,sha1),content);
+        writeContents(join(BOB_DIR,sha1),content);
     }
-
-
 }
