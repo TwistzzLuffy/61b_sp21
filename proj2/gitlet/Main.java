@@ -47,6 +47,16 @@ public class Main {
                 // TODO: handle the `add [filename]` command
                 Repository.status();
                 break;
+            case "checkout":
+                // TODO: handle the `add [filename]` command
+                if(args.length == 3){
+                    Repository.checkoutFile(args[2]);
+                }if (args.length == 4){
+                    Repository.checkoutCommitFile(args[1],args[3]);
+                }if (args.length == 2){
+                    Repository.checkoutBranch(args[1]);
+                }
+                break;
         }
     }
 }

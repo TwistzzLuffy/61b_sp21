@@ -1,5 +1,7 @@
 package gitlet;
 
+
+
 import java.io.File;
 import java.util.*;
 
@@ -35,7 +37,7 @@ public class Repository {
     /**
      * store the bob,tree,commit directory
      */
-    public static final File Object_DIR = join(GITLET_DIR, "object");
+    public static final File OBJECT_DIR = join(GITLET_DIR, "object");
 
     public static final File HEAD_DIR = join(GITLET_DIR, "heads");
 
@@ -45,10 +47,14 @@ public class Repository {
 
     public static final File STAGE_ADD = join(GITLET_DIR, "StageAdd");
     public static final File STAGE_REMOVE = join(GITLET_DIR, "StageRemove");
+
+    public static final File GIT_SHORT_ID_DIR = join(GITLET_DIR, "short");
     // finish the link between add and commit command
     public static TreeMap<String, String> StageAdd = new TreeMap<String, String>();
     // finish the link between rm and commit command
     public static TreeMap<String, String> StageRemove = new TreeMap<String, String>();
+
+    public static TreeMap<String, String> bobIndex = new TreeMap<String, String>();
     /* TODO: fill in the rest of this class. */
     /** create .gitlet*/
 
@@ -62,14 +68,16 @@ public class Repository {
 //            System.exit(0);
 //        }
         GITLET_DIR.mkdir();
-        Object_DIR.mkdir();
+        OBJECT_DIR.mkdir();
         HEAD_DIR.mkdir();
         BOB_DIR.mkdir();
         BRANCH_DIR.mkdir();
+        GIT_SHORT_ID_DIR.mkdir();
         File branch = join(BRANCH_DIR, "master");
         File heads = join(HEAD_DIR, "master");
         Commit commit_0 = new Commit();
         commit_0.Save();
+        commit_0.shortSave();
         writeObject(heads, commit_0);
         writeObject(branch, commit_0);
     }
@@ -113,8 +121,9 @@ public class Repository {
         if (head.getBobIndex() != null) {
             commit.addPrviousCommit(head.getBobIndex());
         }
-        //store commit in object_DIR
+        //store commit in OBJECT_DIR
         commit.Save();
+        commit.shortSave();
         //
         commit.addStaging(StageAdd);
         //make heads store the new commit
@@ -162,26 +171,25 @@ public class Repository {
             parentSha1 = head.getParentIndex();
             if (parentSha1 == null)
                 break;
-            File parentFile = join(Object_DIR, parentSha1.substring(0, 2), parentSha1.substring(2));
+            File parentFile = join(OBJECT_DIR, parentSha1);
             log = readObject(parentFile, Commit.class);
             sign = log.printfCommit();
         }
     }
 
     public static void globaLog() {
-        List<String> file = plainFilenamesIn(Object_DIR);
+        List<String> file = plainFilenamesIn(OBJECT_DIR);
         Commit globalCommit;
         for (String i : file) {
-            globalCommit = readObject(join(Object_DIR, i), Commit.class);
+            globalCommit = readObject(join(OBJECT_DIR, i), Commit.class);
             globalCommit.printfCommit();
         }
     }
 
     public static void find(String message) {
-        List<String> file = plainFilenamesIn(Object_DIR);
-        Commit findCommit;
+        List<String> file = plainFilenamesIn(OBJECT_DIR);
         for (String i : file) {
-            findCommit = readObject(join(Object_DIR, i), Commit.class);
+            Commit findCommit = readObject(join(OBJECT_DIR, i), Commit.class);
             if (findCommit.getMessage().equals(message)) {
                 System.out.println(findCommit.getsha1());
             }
@@ -210,7 +218,7 @@ public class Repository {
         System.out.println();
         //
         System.out.println("=== Staged Files ===");
-        if (STAGE_ADD.exists()){
+        if (STAGE_ADD.exists()) {
             StageAdd = readObject(STAGE_ADD, TreeMap.class);
             for (Map.Entry<String, String> i : StageAdd.entrySet()) {
                 System.out.println(i.getKey());
@@ -219,7 +227,7 @@ public class Repository {
         System.out.println();
         //
         System.out.println("=== Removed Files ===");
-        if (STAGE_REMOVE.exists()){
+        if (STAGE_REMOVE.exists()) {
             StageRemove = readObject(STAGE_REMOVE, TreeMap.class);
             for (Map.Entry<String, String> i : StageRemove.entrySet()) {
                 System.out.println(i.getKey());
@@ -253,18 +261,48 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         for (String cwdFileName : filesInDir) {
             String cwdBob = sha1(readContents(join(CWD, cwdFileName)));
-            for (Map.Entry<String, String> i : StageAdd.entrySet()) {
-                for (String j : bobDir) {
-                    sign= bobDir.indexOf(cwdFileName);
-                    if (sign >= 0){
-                        if (!StageAdd.containsKey(cwdFileName) && bobDir.get(sign).equals(cwdBob)) {
-                            System.out.println(cwdFileName);
-                        }
-                    }
-
+            for (String j : bobDir) {
+                if (j.equals(cwdBob) || !(StageAdd.containsValue(cwdBob))) {
+                    System.out.println(cwdFileName);
                 }
             }
         }
         System.out.println();
     }
+
+    public static boolean checkInStage(String fileName) {
+        StageAdd = readObject(STAGE_ADD, TreeMap.class);
+        for (Map.Entry<String, String> i : StageAdd.entrySet()) {
+            if (i.getKey() == fileName)
+                return true;
+        }
+        return false;
+    }
+
+    public static void checkoutFile(String fileName) {
+        Commit heads = readObject(join(HEAD_DIR, "master"), Commit.class);
+        if (!checkInStage(fileName)){
+            heads.checkout(fileName);
+        }
+
+    }
+
+    public static void checkoutCommitFile(String commitId, String fileName) {
+        File shortFile = join(GIT_SHORT_ID_DIR, commitId.substring(0,6));
+        if (!shortFile.exists()){
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+        Commit fileCommit = readObject(shortFile, Commit.class);
+        if (!checkInStage(fileName)) {
+            fileCommit.checkout(fileName);
+        }
+    }
+
+    public static void checkoutBranch(String branchName){
+
+    }
 }
+
+
+

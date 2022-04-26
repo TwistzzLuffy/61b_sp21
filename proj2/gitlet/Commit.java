@@ -24,7 +24,10 @@ public class Commit implements Serializable {
      *
      */
     public static final File CWD = new File(System.getProperty("user.dir"));
-    public static final File Commit_DIR = Utils.join(CWD,".gitlet/object");
+    public static final File COMMIT_DIR = Utils.join(CWD,".gitlet/object");
+    public static final File GITLET_DIR = join(CWD, ".gitlet");
+    public static final File BOB_DIR = join(GITLET_DIR, "bob");
+    public static final File GIT_SHORT_ID_DIR = join(CWD,".gitlet/short");
     /** The message of this Commit. */
     private String message;
 
@@ -67,7 +70,10 @@ public class Commit implements Serializable {
      * to save this commit
      */
     public void Save(){
-        writeObject(join(Commit_DIR,sha1),this);
+        writeObject(join(COMMIT_DIR,sha1),this);
+    }
+    public void shortSave(){
+        writeObject(join(GIT_SHORT_ID_DIR,sha1.substring(0,6)),this);
     }
 
     /**
@@ -114,6 +120,26 @@ public class Commit implements Serializable {
         System.out.println(message);
         System.out.println();
         return true;
+    }
+
+    public void checkout(String fileName){
+        String bobSha1 = null;
+        byte[] fileContent;
+        boolean sign = false;
+        for (Map.Entry<String, String> i : this.bobIndex.entrySet()) {
+            if (i.getKey().equals(fileName)) {
+                bobSha1 = i.getValue();
+                sign = true;
+                break;
+            }
+        }
+        if (sign) {
+            fileContent = readContents(join(BOB_DIR, bobSha1));
+            writeContents(join(CWD, fileName), fileContent);
+            return;
+        }
+        System.out.println("File does not exist in that commit.");
+        System.exit(0);
     }
 
     public String getParentIndex(){
