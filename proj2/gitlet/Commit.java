@@ -108,15 +108,15 @@ public class Commit implements Serializable {
     public boolean printfCommit(){
         if (message.equals("initial commit")){
             System.out.println("===");
-            System.out.println("commit:"+sha1);
-            System.out.println("Date:" +timestamp);
+            System.out.println("commit "+sha1);
+            System.out.println("Date: " +timestamp);
             System.out.println(message);
             System.out.println();
             return false;
         }
         System.out.println("====");
-        System.out.println("commit:"+sha1);
-        System.out.println("Date:" +timestamp);
+        System.out.println("commit "+sha1);
+        System.out.println("Date: " +timestamp);
         System.out.println(message);
         System.out.println();
         return true;
