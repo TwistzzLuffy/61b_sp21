@@ -4,6 +4,8 @@ package gitlet;
 import static gitlet.Utils.*;
 import java.io.File;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -37,23 +39,21 @@ public class Commit implements Serializable {
      */
 
     private String sha1;
-    private String timestamp;
+    private Date date;
     private String parentIndex;
     private TreeMap<String,String> bobIndex;// store evey file's sha1
 
     public Commit(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy Z");
         message = "initial commit";
-        timestamp = ZonedDateTime.now().format(formatter);
+        date = new Date(0);
         sha1 =  Utils.sha1(Utils.serialize(this));
         bobIndex = new TreeMap<String,String>();
         this.parentIndex = null;
     }
 
     public Commit(String message,String parentIndex){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy Z");
         this.message = message;
-        timestamp = ZonedDateTime.now().format(formatter);
+        date = new Date();
         sha1 =  Utils.sha1(Utils.serialize(this));
         this.parentIndex = parentIndex;
         bobIndex = new TreeMap<String,String>();
@@ -109,14 +109,14 @@ public class Commit implements Serializable {
         if (message.equals("initial commit")){
             System.out.println("===");
             System.out.println("commit "+sha1);
-            System.out.println("Date: " +timestamp);
+            System.out.println("Date: " +getTimestamp());
             System.out.println(message);
             System.out.println();
             return false;
         }
         System.out.println("====");
         System.out.println("commit "+sha1);
-        System.out.println("Date: " +timestamp);
+        System.out.println("Date: " +getTimestamp());
         System.out.println(message);
         System.out.println();
         return true;
@@ -150,5 +150,11 @@ public class Commit implements Serializable {
 
     public TreeMap<String,String>  getBobIndex(){
         return this.bobIndex;
+    }
+
+    public String getTimestamp() {
+        // Thu Jan 1 00:00:00 1970 +0000
+        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
+        return dateFormat.format(date);
     }
 }
