@@ -114,7 +114,7 @@ public class Commit implements Serializable {
             System.out.println();
             return false;
         }
-        System.out.println("====");
+        System.out.println("===");
         System.out.println("commit "+sha1);
         System.out.println("Date: " +getTimestamp());
         System.out.println(message);
