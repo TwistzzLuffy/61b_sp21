@@ -80,6 +80,10 @@ public class Commit implements Serializable {
                 bobIndex.put(i.getKey(),i.getValue());
 //                this.blobMapToFileName.put(entry.getKey(), entry.getValue());
             }
+            if (this.bobIndex.containsKey(i.getKey())&&(!this.bobIndex.containsValue(i.getValue()))){
+                bobIndex.remove(i.getKey());
+                bobIndex.put(i.getKey(),i.getValue());
+            }
         }
     }
 

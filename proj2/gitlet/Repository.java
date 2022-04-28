@@ -119,17 +119,16 @@ public class Repository {
         // head refer to the previous commit
         Commit head = readObject(heads, Commit.class);
         Commit commit = new Commit(message, head.getsha1());
-
+        //
+        commit.addStaging(StageAdd);
         if (head.getBobIndex() != null) {
             commit.addPrviousCommit(head.getBobIndex());
         }
-        //store commit in OBJECT_DIR
-        commit.Save();
-        commit.shortSave();
-        //
-        commit.addStaging(StageAdd);
+
+
         //make heads store the new commit
         writeObject(heads, commit);
+
         //gain the active branch ,then store the branch
         List<String> plainHead = plainFilenamesIn(HEAD_DIR);
         writeObject(join(BRANCH_DIR,plainHead.get(0)),commit);
@@ -146,6 +145,10 @@ public class Repository {
         }
         StageRemove.clear();
         writeObject(stagRemoveFile, StageRemove);
+
+        //store commit in OBJECT_DIR
+        commit.Save();
+        commit.shortSave();
     }
 
 
@@ -169,17 +172,16 @@ public class Repository {
     public static void log() {
         File heads = join(HEAD_DIR, "master");
         Commit head = readObject(heads, Commit.class);
-        Commit log;
-        String parentSha1;
         boolean sign = true;
         head.printfCommit();
+        String parentSha1 = head.getParentIndex();
         while (sign) {
-            parentSha1 = head.getParentIndex();
             if (parentSha1 == null)
                 break;
             File parentFile = join(OBJECT_DIR, parentSha1);
-            log = readObject(parentFile, Commit.class);
+            Commit log = readObject(parentFile, Commit.class);
             sign = log.printfCommit();
+            parentSha1 = log.getParentIndex();
         }
     }
 
