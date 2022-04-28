@@ -58,13 +58,7 @@ public class Commit implements Serializable {
         this.parentIndex = parentIndex;
         bobIndex = new TreeMap<String,String>();
     }
-    /**
-     *
-     * @return the sha1 of this.commit
-     */
-    public String getsha1(){
-        return this.sha1;
-    }
+
 
     /**
      * to save this commit
@@ -114,7 +108,7 @@ public class Commit implements Serializable {
             System.out.println();
             return false;
         }
-        System.out.println("====");
+        System.out.println("===");
         System.out.println("commit "+sha1);
         System.out.println("Date: " +getTimestamp());
         System.out.println(message);
@@ -156,5 +150,12 @@ public class Commit implements Serializable {
         // Thu Jan 1 00:00:00 1970 +0000
         DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
         return dateFormat.format(date);
+    }
+    /**
+     *
+     * @return the sha1 of this.commit
+     */
+    public String getsha1(){
+        return this.sha1;
     }
 }

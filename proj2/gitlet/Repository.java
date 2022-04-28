@@ -114,10 +114,13 @@ public class Repository {
             System.out.println("Please enter a commit message.");
             return;
         }
+        //need modified branch name
         File heads = join(HEAD_DIR, "master");
         // head refer to the previous commit
         Commit head = readObject(heads, Commit.class);
+        System.out.println(head.getsha1());
         Commit commit = new Commit(message, head.getsha1());
+
         if (head.getBobIndex() != null) {
             commit.addPrviousCommit(head.getBobIndex());
         }
