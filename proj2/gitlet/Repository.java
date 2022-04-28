@@ -118,7 +118,6 @@ public class Repository {
         File heads = join(HEAD_DIR, "master");
         // head refer to the previous commit
         Commit head = readObject(heads, Commit.class);
-        System.out.println(head.getsha1());
         Commit commit = new Commit(message, head.getsha1());
 
         if (head.getBobIndex() != null) {
