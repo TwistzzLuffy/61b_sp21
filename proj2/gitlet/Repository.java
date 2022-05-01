@@ -283,7 +283,7 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         for (String cwdFileName : filesInDir) {
             String cwdBob = sha1(readContents(join(CWD, cwdFileName)));
-            if (!StageAdd.containsValue(cwdBob) || tracks.containsKey(cwdFileName)){
+            if (!(StageAdd.containsValue(cwdBob) || tracks.containsKey(cwdFileName))){
                 System.out.println(cwdFileName);
             }
         }
