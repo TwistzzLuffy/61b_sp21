@@ -2,6 +2,8 @@ package gitlet;
 
 
 
+import edu.princeton.cs.algs4.StdOut;
+
 import java.io.File;
 import java.util.*;
 
@@ -63,7 +65,7 @@ public class Repository {
      * init
      */
     public static void gitInit() {
-        if(GITLET_DIR.exists()){
+        if (GITLET_DIR.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
         }
@@ -86,19 +88,19 @@ public class Repository {
      * add
      */
     public static void gitAdd(String fileName) {
-        File CwdFile = join(CWD,fileName);
-        if (!CwdFile.exists()){
+        File CwdFile = join(CWD, fileName);
+        if (!CwdFile.exists()) {
             System.out.println("File does not exist.");
             System.exit(0);
         }
         File StagAddFile = join(GITLET_DIR, "StageAdd");
-        if (StagAddFile.exists()){
-            StageAdd = readObject(StagAddFile,TreeMap.class);
+        if (StagAddFile.exists()) {
+            StageAdd = readObject(StagAddFile, TreeMap.class);
         }
         Blob blob = new Blob(fileName);
         blob.SaveForAdd();
-        StageAdd.put(fileName,blob.getBobSha1());
-        writeObject(StagAddFile,StageAdd);
+        StageAdd.put(fileName, blob.getBobSha1());
+        writeObject(StagAddFile, StageAdd);
     }
 
     /**
@@ -142,7 +144,7 @@ public class Repository {
 
         //gain the active branch ,then store the branch
         List<String> plainHead = plainFilenamesIn(HEAD_DIR);
-        writeObject(join(BRANCH_DIR,plainHead.get(0)),commit);
+        writeObject(join(BRANCH_DIR, plainHead.get(0)), commit);
 
         //clean the StageAdd and save StagAdd
         StageAdd.clear();
@@ -172,7 +174,7 @@ public class Repository {
         if (StageAdd.containsKey(filename)) {
 //            StageRemove.put(filename,StageAdd.get(filename));
             StageAdd.remove(filename);
-            writeObject(stagAddFile,StageAdd);
+            writeObject(stagAddFile, StageAdd);
 //            writeObject(stagRemoveFile,StageRemove);
         }
         //if file in current commit ,add to stageRemove and delete it in CWD
@@ -283,7 +285,7 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         for (String cwdFileName : filesInDir) {
             String cwdBob = sha1(readContents(join(CWD, cwdFileName)));
-            if (!(StageAdd.containsValue(cwdBob) || tracks.containsKey(cwdFileName))){
+            if (!(StageAdd.containsValue(cwdBob) || tracks.containsKey(cwdFileName))) {
                 System.out.println(cwdFileName);
             }
         }
@@ -301,15 +303,15 @@ public class Repository {
 
     public static void checkoutFile(String fileName) {
         Commit heads = readObject(join(HEAD_DIR, "master"), Commit.class);
-        if (!checkInStage(fileName)){
+        if (!checkInStage(fileName)) {
             heads.checkout(fileName);
         }
 
     }
 
     public static void checkoutCommitFile(String commitId, String fileName) {
-        File shortFile = join(GIT_SHORT_ID_DIR, commitId.substring(0,6));
-        if (!shortFile.exists()){
+        File shortFile = join(GIT_SHORT_ID_DIR, commitId.substring(0, 6));
+        if (!shortFile.exists()) {
             System.out.println("No commit with that id exists.");
             System.exit(0);
         }
@@ -319,26 +321,27 @@ public class Repository {
         }
     }
 
-    public static void checkoutBranch(String branchName){
-        File givenBranchFile = join(BRANCH_DIR,branchName);
-        if (!givenBranchFile.exists()){
+    public static void checkoutBranch(String branchName) {
+        File givenBranchFile = join(BRANCH_DIR, branchName);
+        if (!givenBranchFile.exists()) {
             System.out.println("No such branch exists.");
             System.exit(0);
         }
-        Commit currentBranch = readObject(HEAD_DIR,Commit.class);
         List<String> plainHead = plainFilenamesIn(HEAD_DIR);
-        if (plainHead.get(0) == branchName){
+        // currentBranch index to head before modified
+        Commit currentBranch = readObject(join(HEAD_DIR, plainHead.get(0)), Commit.class);
+        if (plainHead.get(0) == branchName) {
             System.out.println("No need to checkout the current branch.");
             System.exit(0);
         }
-        Commit givenBranch = readObject(givenBranchFile,Commit.class);
-        TreeMap<String,String> currentBobFile = currentBranch.getBobIndex();
-        TreeMap<String,String> givenBobFile = givenBranch.getBobIndex();
+        Commit givenBranch = readObject(givenBranchFile, Commit.class);
+        TreeMap<String, String> currentBobFile = currentBranch.getBobIndex();
+        TreeMap<String, String> givenBobFile = givenBranch.getBobIndex();
         List<String> cwdFileList = plainFilenamesIn(CWD);
-        for (String filename : cwdFileList){
-            String bobSha1 = sha1(readContents(join(CWD,filename)));
+        for (String filename : cwdFileList) {
+            String bobSha1 = sha1(readContents(join(CWD, filename)));
             if (!currentBobFile.containsValue(bobSha1) || StageAdd.containsValue(bobSha1)
-            || StageRemove.containsValue(bobSha1)){
+                    || StageRemove.containsValue(bobSha1)) {
                 System.out.println("There is an untracked file in the way; " +
                         "delete it, or add and commit it first.");
                 System.exit(0);
@@ -346,25 +349,101 @@ public class Repository {
         }
         //put all the file of giveBranch to cwd;
         byte[] fileContent;
-        for (Map.Entry<String,String> entry: givenBobFile.entrySet()){
+        for (Map.Entry<String, String> entry : givenBobFile.entrySet()) {
             fileContent = readContents(join(BOB_DIR, entry.getValue()));
-            writeContents(join(CWD,entry.getKey()), fileContent);
+            writeContents(join(CWD, entry.getKey()), fileContent);
         }
         //delete file which track in currentBranch ,not in given branch
-        for (Map.Entry<String,String> i : currentBobFile.entrySet()){
-            for (Map.Entry<String,String> j : givenBobFile.entrySet()){
-                if(i.equals(j)){
-                   continue;
+        for (Map.Entry<String, String> i : currentBobFile.entrySet()) {
+            for (Map.Entry<String, String> j : givenBobFile.entrySet()) {
+                if (i.equals(j)) {
+                    continue;
                 }
-                restrictedDelete(join(CWD,i.getKey()));
+                restrictedDelete(join(CWD, i.getKey()));
             }
         }
         StageAdd.clear();
         StageRemove.clear();
         //the given commit will be the current branch
-        if(restrictedDelete(join(HEAD_DIR,plainHead.get(0)))){
+        if (restrictedDelete(join(HEAD_DIR, plainHead.get(0)))) {
             // head store the given branch
-            writeObject(HEAD_DIR,branchName);
+            writeObject(HEAD_DIR, branchName);
+        }
+    }
+
+    public static void branch(String branchName) {
+        File branchFile = join(BRANCH_DIR, branchName);
+        if (branchFile.exists()) {
+            System.out.println("A branch with that name already exists.");
+            System.exit(0);
+        }
+        File headBranchName = join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0));
+        Commit branchCommit = readObject(headBranchName, Commit.class);
+        writeObject(branchFile, branchCommit);
+        // store this branch to head
+        join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0)).delete();
+        writeObject(join(HEAD_DIR, branchName), branchCommit);
+    }
+
+    public static void rmBranch(String branchName) {
+        File branchNameFile = join(HEAD_DIR, branchName);
+        if (!branchNameFile.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if (branchNameFile.equals(plainFilenamesIn(HEAD_DIR).get(0))) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        branchNameFile.delete();
+    }
+
+    public static void reset(String commitId) {
+        File resetComitId = join(GIT_SHORT_ID_DIR, commitId);
+        if (!resetComitId.exists()){
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+        Commit resetCommit = readObject(resetComitId,Commit.class);
+        TreeMap<String, String> resetBobfile = resetCommit.getBobIndex();
+        List<String> cwdFile = plainFilenamesIn(CWD);
+        // delete current dir file which are not exit in given commit
+        for (String i : cwdFile) {
+            File mycwdFile = join(CWD, i);
+            String bobSha1 = sha1(readContents(mycwdFile));
+            if (!resetBobfile.containsValue(bobSha1) || StageAdd.containsValue(bobSha1)
+                    || StageRemove.containsValue(bobSha1)) {
+                System.out.println("There is an untracked file in the way; " +
+                        "delete it, or add and commit it first.");
+                System.exit(0);
+            }
+            //copy or overwrite given commit file to CWD
+            byte[] fileContent;
+            for (Map.Entry<String, String> entry : resetBobfile.entrySet()) {
+                fileContent = readContents(join(BOB_DIR, entry.getValue()));
+                writeContents(join(CWD, entry.getKey()), fileContent);
+            }
+            File currentBranchName = join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0));
+            Commit currentCommit = readObject(currentBranchName, Commit.class);
+            TreeMap<String, String> currentBobFile = currentCommit.getBobIndex();
+            //delete file from the bobindexfile ,which track in currentBranch ,not in given branch
+            for (Map.Entry<String, String> entry : currentBobFile.entrySet()) {
+                for (Map.Entry<String, String> entry1 : resetBobfile.entrySet()) {
+                    if (i.equals(entry1)) {
+                        continue;
+                    }
+                    //delete track
+                    resetBobfile.remove(entry1.getKey());
+                    join(BOB_DIR,entry1.getValue()).delete();
+                    //delete file from cwd.
+                    restrictedDelete(join(CWD, entry.getKey()));
+                }
+            }
+            StageAdd.clear();
+            StageRemove.clear();
+            // store this branch to head
+            join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0)).delete();
+            writeObject(currentBranchName, resetCommit);
         }
     }
 }
