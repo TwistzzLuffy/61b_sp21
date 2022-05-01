@@ -165,11 +165,15 @@ public class Repository {
 
     public static void gitRm(String filename) {
         Commit head = readObject(join(HEAD_DIR, "master"), Commit.class);
-        StageAdd = readObject(join(GITLET_DIR, "StageAdd"), TreeMap.class);
+        File stagAddFile = join(GITLET_DIR, "StageAdd");
+        StageAdd = readObject(stagAddFile, TreeMap.class);
         File stagRemoveFile = join(GITLET_DIR, "StageRemove");
-        // if file in stageAdd , unstage it
+        // if file in stageAdd , unstage it and add to stageRemov
         if (StageAdd.containsKey(filename)) {
+//            StageRemove.put(filename,StageAdd.get(filename));
             StageAdd.remove(filename);
+            writeObject(stagAddFile,StageAdd);
+//            writeObject(stagRemoveFile,StageRemove);
         }
         //if file in current commit ,add to stageRemove and delete it in CWD
         TreeMap<String, String> bobIndex = head.getBobIndex();
