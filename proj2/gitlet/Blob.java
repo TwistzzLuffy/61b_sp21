@@ -41,4 +41,7 @@ public class Blob {
         byte[] content = readContents(readFile);
         writeContents(join(BOB_DIR,sha1),content);
     }
+    public String getBobSha1(){
+        return this.sha1;
+    }
 }

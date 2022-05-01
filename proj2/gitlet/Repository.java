@@ -63,10 +63,10 @@ public class Repository {
      * init
      */
     public static void gitInit() {
-//        if(GITLET_DIR.exists()){
-//            System.out.println("A Gitlet version-control system already exists in the current directory.");
-//            System.exit(0);
-//        }
+        if(GITLET_DIR.exists()){
+            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.exit(0);
+        }
         GITLET_DIR.mkdir();
         OBJECT_DIR.mkdir();
         HEAD_DIR.mkdir();
@@ -86,8 +86,19 @@ public class Repository {
      * add
      */
     public static void gitAdd(String fileName) {
+        File CwdFile = join(CWD,fileName);
+        if (CwdFile.exists()){
+            System.out.println("File does not exist.");
+            System.exit(0);
+        }
+        File StagAddFile = join(GITLET_DIR, "StageAdd");
+        if (StagAddFile.exists()){
+            StageAdd = readObject(StagAddFile,TreeMap.class);
+        }
         Blob blob = new Blob(fileName);
         blob.SaveForAdd();
+        StageAdd.put(fileName,blob.getBobSha1());
+        writeObject(StagAddFile,StageAdd);
     }
 
     /**
