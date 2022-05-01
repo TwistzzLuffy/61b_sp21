@@ -87,7 +87,7 @@ public class Repository {
      */
     public static void gitAdd(String fileName) {
         File CwdFile = join(CWD,fileName);
-        if (CwdFile.exists()){
+        if (!CwdFile.exists()){
             System.out.println("File does not exist.");
             System.exit(0);
         }
