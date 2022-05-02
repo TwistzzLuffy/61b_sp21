@@ -354,7 +354,7 @@ public class Repository {
         List<String> plainHead = plainFilenamesIn(HEAD_DIR);
         // currentBranch index to head before modified
         Commit currentBranch = readObject(join(HEAD_DIR, plainHead.get(0)), Commit.class);
-        if (plainHead.get(0) == branchName) {
+        if (plainHead.get(0).equals(branchName)) {
             System.out.println("No need to checkout the current branch.");
             System.exit(0);
         }
@@ -363,12 +363,16 @@ public class Repository {
         TreeMap<String, String> givenBobFile = givenBranch.getBobIndex();
         List<String> cwdFileList = plainFilenamesIn(CWD);
         for (String filename : cwdFileList) {
-            String bobSha1 = sha1(readContents(join(CWD, filename)));
+            File cwdfile = join(CWD, filename);
+            String bobSha1 = sha1(readContents(cwdfile));
             if (!currentBobFile.containsValue(bobSha1) || StageAdd.containsValue(bobSha1)
                     || StageRemove.containsValue(bobSha1)) {
                 System.out.println("There is an untracked file in the way; " +
                         "delete it, or add and commit it first.");
                 System.exit(0);
+            }
+            if (!givenBobFile.containsKey(filename)){
+                restrictedDelete(cwdfile);
             }
         }
         //put all the file of giveBranch to cwd;
@@ -378,21 +382,21 @@ public class Repository {
             writeContents(join(CWD, entry.getKey()), fileContent);
         }
         //delete file which track in currentBranch ,not in given branch
-        for (Map.Entry<String, String> i : currentBobFile.entrySet()) {
-            for (Map.Entry<String, String> j : givenBobFile.entrySet()) {
-                if (i.equals(j)) {
-                    continue;
-                }
-                restrictedDelete(join(CWD, i.getKey()));
-            }
-        }
+//        for (Map.Entry<String, String> i : currentBobFile.entrySet()) {
+//            for (Map.Entry<String, String> j : givenBobFile.entrySet()) {
+//                if (i.equals(j)) {
+//                    continue;
+//                }
+//                restrictedDelete(join(CWD, i.getKey()));
+//            }
+//        }
         StageAdd.clear();
         StageRemove.clear();
         //the given commit will be the current branch
-        if (restrictedDelete(join(HEAD_DIR, plainHead.get(0)))) {
-            // head store the given branch
-            writeObject(HEAD_DIR, branchName);
-        }
+        join(HEAD_DIR, plainHead.get(0)).delete();
+        // head store the given branch
+        writeObject(HEAD_DIR, branchName);
+
     }
 
     public static void branch(String branchName) {
@@ -404,9 +408,6 @@ public class Repository {
         File headBranchName = join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0));
         Commit branchCommit = readObject(headBranchName, Commit.class);
         writeObject(branchFile, branchCommit);
-        // store this branch to head
-        join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0)).delete();
-        writeObject(join(HEAD_DIR, branchName), branchCommit);
     }
 
     public static void rmBranch(String branchName) {
