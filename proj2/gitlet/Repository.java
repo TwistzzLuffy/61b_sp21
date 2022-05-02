@@ -2,7 +2,6 @@ package gitlet;
 
 
 
-import edu.princeton.cs.algs4.StdOut;
 
 import java.io.File;
 import java.util.*;
@@ -93,14 +92,28 @@ public class Repository {
             System.out.println("File does not exist.");
             System.exit(0);
         }
-        File StagAddFile = join(GITLET_DIR, "StageAdd");
-        if (StagAddFile.exists()) {
-            StageAdd = readObject(StagAddFile, TreeMap.class);
+        if (STAGE_ADD.exists()) {
+            StageAdd = readObject(STAGE_ADD, TreeMap.class);
+        }
+        // if add file which exist StageRemoveArea , the file should be remove away from this area.
+        if (STAGE_REMOVE.exists()){
+            StageRemove = readObject(STAGE_REMOVE,TreeMap.class);
+            for (Map.Entry<String,String> entry : StageRemove.entrySet()){
+                if (entry.getKey().equals(fileName)){
+                    StageRemove.remove(fileName);
+                }
+            }
+            writeObject(STAGE_REMOVE,StageRemove);
         }
         Blob blob = new Blob(fileName);
-        blob.SaveForAdd();
-        StageAdd.put(fileName, blob.getBobSha1());
-        writeObject(StagAddFile, StageAdd);
+        File currentCommitFile = join(HEAD_DIR,plainFilenamesIn(HEAD_DIR).get(0));
+        Commit heads = readObject(currentCommitFile,Commit.class);
+        TreeMap<String,String> trackedBobIndex = heads.getBobIndex();
+        if (!trackedBobIndex.containsValue(blob.getBobSha1())){
+            blob.SaveForAdd();
+            StageAdd.put(fileName, blob.getBobSha1());
+            writeObject(STAGE_ADD, StageAdd);
+        }
     }
 
     /**
@@ -116,10 +129,13 @@ public class Repository {
      * commit
      */
     public static void gitCommit(String message) {
-        File stagAddFile = join(GITLET_DIR, "StageAdd");
-        File stagRemoveFile = join(GITLET_DIR, "StageRemove");
-        StageAdd = readObject(stagAddFile, TreeMap.class);
-        if (StageAdd.isEmpty()) {
+        if (STAGE_ADD.exists()){
+            StageAdd = readObject(STAGE_ADD, TreeMap.class);
+        }
+        if (STAGE_REMOVE.exists()){
+            StageRemove = readObject(STAGE_REMOVE,TreeMap.class);
+        }
+        if (StageAdd.isEmpty() && StageRemove.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
@@ -128,7 +144,7 @@ public class Repository {
             return;
         }
         //need modified branch name
-        File heads = join(HEAD_DIR, "master");
+        File heads = join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0));
         // head refer to the previous commit
         Commit head = readObject(heads, Commit.class);
         Commit commit = new Commit(message, head.getsha1());
@@ -138,51 +154,48 @@ public class Repository {
             commit.addPrviousCommit(head.getBobIndex());
         }
 
-
-        //make heads store the new commit
-        writeObject(heads, commit);
-
         //gain the active branch ,then store the branch
         List<String> plainHead = plainFilenamesIn(HEAD_DIR);
         writeObject(join(BRANCH_DIR, plainHead.get(0)), commit);
 
         //clean the StageAdd and save StagAdd
         StageAdd.clear();
-        writeObject(stagAddFile, StageAdd);
+        writeObject(STAGE_ADD, StageAdd);
         //delete the bob file in stageRemove
-        if (stagRemoveFile.exists()) {
-            StageRemove = readObject(stagRemoveFile, TreeMap.class);
+        if (STAGE_REMOVE.exists()) {
+            StageRemove = readObject(STAGE_REMOVE, TreeMap.class);
             if (!StageRemove.isEmpty()) {
                 commit.deleteStageRemoveFile(StageRemove);
             }
         }
         StageRemove.clear();
-        writeObject(stagRemoveFile, StageRemove);
+        writeObject(STAGE_REMOVE, StageRemove);
 
         //store commit in OBJECT_DIR
         commit.Save();
         commit.shortSave();
+
+        //make heads store the new commit Hint: must be after stage clean
+        writeObject(heads, commit);
     }
 
 
     public static void gitRm(String filename) {
         Commit head = readObject(join(HEAD_DIR, "master"), Commit.class);
-        File stagAddFile = join(GITLET_DIR, "StageAdd");
-        StageAdd = readObject(stagAddFile, TreeMap.class);
-        File stagRemoveFile = join(GITLET_DIR, "StageRemove");
+        StageAdd = readObject(STAGE_ADD, TreeMap.class);
         // if file in stageAdd , unstage it and add to stageRemov
         if (StageAdd.containsKey(filename)) {
 //            StageRemove.put(filename,StageAdd.get(filename));
             StageAdd.remove(filename);
-            writeObject(stagAddFile, StageAdd);
-//            writeObject(stagRemoveFile,StageRemove);
+            writeObject(STAGE_ADD, StageAdd);
+//            writeObject(STAGE_REMOVE,StageRemove);
         }
         //if file in current commit ,add to stageRemove and delete it in CWD
         TreeMap<String, String> bobIndex = head.getBobIndex();
         if (bobIndex.containsKey(filename)) {
             StageRemove.put(filename, bobIndex.get(filename));
             restrictedDelete(join(CWD, filename));
-            writeObject(stagRemoveFile, StageRemove);
+            writeObject(STAGE_REMOVE, StageRemove);
         }
     }
 
