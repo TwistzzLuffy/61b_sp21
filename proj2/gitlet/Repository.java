@@ -232,14 +232,19 @@ public class Repository {
 
     public static void find(String message) {
         List<String> file = plainFilenamesIn(OBJECT_DIR);
+        boolean sign = true;
         for (String i : file) {
             Commit findCommit = readObject(join(OBJECT_DIR, i), Commit.class);
             if (findCommit.getMessage().equals(message)) {
                 System.out.println(findCommit.getsha1());
+                sign = false;
             }
         }
-        System.out.println("Found no commit with that message.");
-        System.exit(0);
+        if (sign){
+            System.out.println("Found no commit with that message.");
+            System.exit(0);
+        }
+
     }
 
     public static void status() {
