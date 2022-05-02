@@ -109,7 +109,7 @@ public class Repository {
         File currentCommitFile = join(HEAD_DIR,plainFilenamesIn(HEAD_DIR).get(0));
         Commit heads = readObject(currentCommitFile,Commit.class);
         TreeMap<String,String> trackedBobIndex = heads.getBobIndex();
-        if (!trackedBobIndex.containsValue(blob.getBobSha1())){
+        if (!(trackedBobIndex.containsValue(blob.getBobSha1()) && trackedBobIndex.containsKey(fileName))){
             blob.SaveForAdd();
             StageAdd.put(fileName, blob.getBobSha1());
             writeObject(STAGE_ADD, StageAdd);
@@ -181,8 +181,15 @@ public class Repository {
 
 
     public static void gitRm(String filename) {
-        Commit head = readObject(join(HEAD_DIR, "master"), Commit.class);
-        StageAdd = readObject(STAGE_ADD, TreeMap.class);
+        Commit head = readObject(join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0)), Commit.class);
+        TreeMap<String, String> bobIndex = head.getBobIndex();
+        if (STAGE_ADD.exists()){
+            StageAdd = readObject(STAGE_ADD, TreeMap.class);
+        }
+        if (!(StageAdd.containsKey(filename) || bobIndex.containsKey(filename))){
+            System.out.println("No reason to remove the file.");
+            System.exit(0);
+        }
         // if file in stageAdd , unstage it and add to stageRemov
         if (StageAdd.containsKey(filename)) {
 //            StageRemove.put(filename,StageAdd.get(filename));
@@ -191,7 +198,6 @@ public class Repository {
 //            writeObject(STAGE_REMOVE,StageRemove);
         }
         //if file in current commit ,add to stageRemove and delete it in CWD
-        TreeMap<String, String> bobIndex = head.getBobIndex();
         if (bobIndex.containsKey(filename)) {
             StageRemove.put(filename, bobIndex.get(filename));
             restrictedDelete(join(CWD, filename));
@@ -412,7 +418,7 @@ public class Repository {
     }
 
     public static void reset(String commitId) {
-        File resetComitId = join(GIT_SHORT_ID_DIR, commitId);
+        File resetComitId = join(OBJECT_DIR, commitId);
         if (!resetComitId.exists()){
             System.out.println("No commit with that id exists.");
             System.exit(0);

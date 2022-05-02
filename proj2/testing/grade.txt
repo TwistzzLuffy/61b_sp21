@@ -1,0 +1,1654 @@
+101) ec-untracked (0.0/32.0)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitletEC.test101:14 (AGTestGitletEC.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+EXTRA CREDIT: Extra-credit status lines.
+
+
+ec-test101-untracked:
+Testing directory: ec-test101-untracked_0
+ERROR (incorrect output)
+    Error on line 36 of ec-test101-untracked.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- ec-test101-untracked.in --------------------
+ 1. # Extra-credit status lines.
+ 2. I prelude1.inc
+ 3. + f.txt wug.txt
+ 4. > status
+ 5. === Branches ===
+ 6. *master
+ 7. 
+ 8. === Staged Files ===
+ 9. 
+10. === Removed Files ===
+11. 
+12. === Modifications Not Staged For Commit ===
+13. 
+14. === Untracked Files ===
+15. f.txt
+16. 
+17. <<<
+18. > add f.txt
+19. <<<
+20. > commit "Add f"
+21. <<<
+22. + f.txt notwug.txt
+23. > status
+24. === Branches ===
+25. *master
+26. 
+27. === Staged Files ===
+28. 
+29. === Removed Files ===
+30. 
+31. === Modifications Not Staged For Commit ===
+32. f.txt (modified)
+33. 
+34. === Untracked Files ===
+35. 
+36. <<<
+37. - f.txt
+38. > status
+39. === Branches ===
+40. *master
+41. 
+42. === Staged Files ===
+43. 
+44. === Removed Files ===
+45. 
+46. === Modifications Not Staged For Commit ===
+47. f.txt (deleted)
+48. 
+49. === Untracked Files ===
+50. 
+51. <<<
+-----------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > status
+- === Branches ===
+- *master
+- 
+- === Staged Files ===
+- 
+- === Removed Files ===
+- 
+- === Modifications Not Staged For Commit ===
+- 
+- === Untracked Files ===
+- 
+102) ec-remote-fetch-push (0.0/24.0)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitletEC.test102:20 (AGTestGitletEC.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+EXTRA CREDIT: Extra-credit tests for remote fetch and push
+
+
+ec-test102-remote-fetch-push:
+Testing directory: ec-test102-remote-fetch-push_0
+ERROR (incorrect output)
+    Error on line 49 of ec-test102-remote-fetch-push.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- ec-test102-remote-fetch-push.in --------------------
+ 1. # Extra-credit tests for remote fetch and push
+ 2. # Fetch from remote
+ 3. # Set up first repository with one commit + initial
+ 4. C D1
+ 5. I setup2.inc
+ 6. > log
+ 7. ===
+ 8. ${COMMIT_HEAD}
+ 9. Two files
+10. 
+11. ===
+12. ${COMMIT_HEAD}
+13. initial commit
+14. 
+15. <<<*
+16. D R1_TWO "${1}"
+17. D R1_INIT "${2}"
+18. 
+19. # Set up second repository with one commit + init.
+20. 
+21. C D2
+22. > init
+23. <<<
+24. + k.txt wug2.txt
+25. > add k.txt
+26. <<<
+27. > commit "Add k in repo 2"
+28. <<<
+29. > log
+30. ===
+31. ${COMMIT_HEAD}
+32. Add k in repo 2
+33. 
+34. ===
+35. ${COMMIT_HEAD}
+36. initial commit
+37. 
+38. <<<*
+39. D R2_K "${1}"
+40. D R2_INIT "${2}"
+41. 
+42. # Fetch remote master and reset our master to it.
+43. # Then add another commit and push.
+44. > add-remote R1 ../D1/.gitlet
+45. <<<
+46. > fetch R1 master
+47. <<<
+48. > checkout R1/master
+49. <<<
+50. > log
+51. ===
+52. commit ${R1_TWO}
+53. ${DATE}
+54. Two files
+55. 
+56. ===
+57. commit ${R1_INIT}
+58. ${DATE}
+59. initial commit
+60. 
+61. <<<*
+62. > checkout master
+63. <<<
+64. > reset ${R1_TWO}
+65. <<<
+66. + h.txt wug3.txt
+67. > add h.txt
+68. <<<
+69. > commit "Add h"
+70. <<<
+71. > log
+72. ===
+73. ${COMMIT_HEAD}
+74. Add h
+75. 
+76. ===
+77. commit ${R1_TWO}
+78. ${DATE}
+79. Two files
+80. 
+81. ===
+82. commit ${R1_INIT}
+83. ${DATE}
+84. initial commit
+85. 
+86. <<<*
+87. D R2_H "${1}"
+88. > push R1 master
+89. <<<
+90. 
+91. # Check that we have received the pushed branch
+92. C D1
+93. > log
+94. ===
+95. commit ${R2_H}
+96. ${DATE}
+97. Add h
+98. 
+99. ===
+100. commit ${R1_TWO}
+101. ${DATE}
+102. Two files
+103. 
+104. ===
+105. commit ${R1_INIT}
+106. ${DATE}
+107. initial commit
+108. 
+109. <<<*
+-------------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- setup2.inc --------------------
+1. # Set up one commit with two files.
+2. I setup1.inc
+3. > commit "Two files"
+4. <<<
+----------------------------------------------------
+-------------------- setup1.inc --------------------
+1. # Initialize and add two files.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. + g.txt notwug.txt
+5. > add g.txt
+6. <<<
+7. > add f.txt
+8. <<<
+----------------------------------------------------
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+-------------------- wug2.txt --------------------
+1. Another wug.
+--------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > checkout R1/master
+- No such branch exists.
+103) ec-remote-fetch-pull (0.0/24.0)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitletEC.test103:26 (AGTestGitletEC.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+EXTRA CREDIT: Extra-credit tests for remote fetch and pull
+
+
+ec-test103-remote-fetch-pull:
+Testing directory: ec-test103-remote-fetch-pull_0
+ERROR (incorrect output)
+    Error on line 30 of ec-test103-remote-fetch-pull.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- ec-test103-remote-fetch-pull.in --------------------
+ 1. # Extra-credit tests for remote fetch and pull
+ 2. # Pull from remote.
+ 3. # Set up first repository with one commit + initial
+ 4. C D1
+ 5. I setup2.inc
+ 6. > log
+ 7. ===
+ 8. ${COMMIT_HEAD}
+ 9. Two files
+10. 
+11. ===
+12. ${COMMIT_HEAD}
+13. initial commit
+14. 
+15. <<<*
+16. D R1_TWO "${1}"
+17. D R1_INIT "${2}"
+18. 
+19. # Set up second repository with one commit + init.
+20. 
+21. C D2
+22. > init
+23. <<<
+24. # Fetch remote master and reset our master to it.
+25. > add-remote R1 ../D1/.gitlet
+26. <<<
+27. > fetch R1 master
+28. <<<
+29. > reset ${R1_TWO}
+30. <<<
+31. + h.txt wug3.txt
+32. > add h.txt
+33. <<<
+34. > commit "Add h"
+35. <<<
+36. 
+37. # Add more to the master branch of the first repo.
+38. C D1
+39. + k.txt wug2.txt
+40. > add k.txt
+41. <<<
+42. > commit "Add k"
+43. <<<
+44. 
+45. # Now pull into the second repo.
+46. C D2
+47. > pull R1 master
+48. <<<
+49. > log
+50. ===
+51. ${COMMIT_HEAD}
+52. Merged R1/master into master\.
+53. 
+54. ${ARBLINES}
+55. <<<*
+-------------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- setup2.inc --------------------
+1. # Set up one commit with two files.
+2. I setup1.inc
+3. > commit "Two files"
+4. <<<
+----------------------------------------------------
+-------------------- setup1.inc --------------------
+1. # Initialize and add two files.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. + g.txt notwug.txt
+5. > add g.txt
+6. <<<
+7. > add f.txt
+8. <<<
+----------------------------------------------------
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > reset ec1c069996c7ce7cf3bd46630c45c3154cef81ea
+- No commit with that id exists.
+104) ec-bad-remotes-err (0.0/16.0)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitletEC.test104:32 (AGTestGitletEC.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+EXTRA CREDIT: Extra-credit test for error conditions for remote commands
+
+
+ec-test104-bad-remotes-err:
+Testing directory: ec-test104-bad-remotes-err_0
+ERROR (incorrect output)
+    Error on line 46 of ec-test104-bad-remotes-err.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- ec-test104-bad-remotes-err.in --------------------
+ 1. # Extra-credit test for error conditions for remote commands
+ 2. C D1
+ 3. I setup2.inc
+ 4. > log
+ 5. ===
+ 6. ${COMMIT_HEAD}
+ 7. Two files
+ 8. 
+ 9. ===
+10. ${COMMIT_HEAD}
+11. initial commit
+12. 
+13. <<<*
+14. D R1_TWO "${1}"
+15. D R1_INIT "${2}"
+16. 
+17. # Set up second repository with one commit + inita.
+18. 
+19. C D2
+20. > init
+21. <<<
+22. + k.txt wug2.txt
+23. > add k.txt
+24. <<<
+25. > commit "Add k in repo 2"
+26. <<<
+27. > log
+28. ===
+29. ${COMMIT_HEAD}
+30. Add k in repo 2
+31. 
+32. ===
+33. ${COMMIT_HEAD}
+34. initial commit
+35. 
+36. <<<*
+37. D R2_K "${1}"
+38. D R2_INIT "${2}"
+39. 
+40. # Fetch remote master and reset our master to it.
+41. # Then add another commit and push.
+42. > add-remote R1 ../Dx/.gitlet
+43. <<<
+44. > add-remote R1 ../D1/.gitlet
+45. A remote with that name already exists.
+46. <<<
+47. > fetch R1 master
+48. Remote directory not found.
+49. <<<
+50. > push R1 master
+51. Remote directory not found.
+52. <<<
+53. > rm-remote R1
+54. <<<
+55. > rm-remote glorp
+56. A remote with that name does not exist.
+57. <<<
+58. > add-remote R1 ../D1/.gitlet
+59. <<<
+60. > fetch R1 glorp
+61. That remote does not have that branch.
+62. <<<
+63. > push R1 master
+64. Please pull down remote changes before pushing.
+65. <<<
+-----------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- setup2.inc --------------------
+1. # Set up one commit with two files.
+2. I setup1.inc
+3. > commit "Two files"
+4. <<<
+----------------------------------------------------
+-------------------- setup1.inc --------------------
+1. # Initialize and add two files.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. + g.txt notwug.txt
+5. > add g.txt
+6. <<<
+7. > add f.txt
+8. <<<
+----------------------------------------------------
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- wug2.txt --------------------
+1. Another wug.
+--------------------------------------------------
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > add-remote R1 ../D1/.gitlet
+11) basic-status (14.815/14.815)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Empty status
+
+
+test11-basic-status:
+Testing directory: test11-basic-status_0
+OK
+
+All passed.
+12) add-status (14.815/14.815)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Status with two adds
+
+
+test12-add-status:
+Testing directory: test12-add-status_0
+OK
+
+All passed.
+13) remove-status (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Remove a tracked file and check status.
+
+
+test13-remove-status:
+Testing directory: test13-remove-status_0
+OK
+
+All passed.
+14) add-remove-status (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Status with two adds
+
+
+test14-add-remove-status:
+Testing directory: test14-add-remove-status_0
+OK
+
+All passed.
+15) remove-add-status (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Status with a removal followed by an add that restores former
+
+
+test15-remove-add-status:
+Testing directory: test15-remove-add-status_0
+OK
+
+All passed.
+16) empty-commit-err (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Commit with nothing to staged or removed.
+
+
+test16-empty-commit-err:
+Testing directory: test16-empty-commit-err_0
+OK
+
+All passed.
+17) empty-commit-message-err (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Commit message with blank message
+
+
+test17-empty-commit-message-err:
+Testing directory: test17-empty-commit-message-err_0
+OK
+
+All passed.
+18) nop-add (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that adding a tracked, unchanged file has no effect.
+
+
+test18-nop-add:
+Testing directory: test18-nop-add_0
+OK
+
+All passed.
+19) add-missing-err (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that adding nonexistent file gets correct error.
+
+
+test19-add-missing-err:
+Testing directory: test19-add-missing-err_0
+OK
+
+All passed.
+20) status-after-commit (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that commit clears the staging area.
+
+
+test20-status-after-commit:
+Testing directory: test20-status-after-commit_0
+OK
+
+All passed.
+21) nop-remove-err (0.0/29.63)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test21:104 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check error message for removal of unstaged, untracked file.
+
+
+test21-nop-remove-err:
+Testing directory: test21-nop-remove-err_0
+ERROR (java gitlet.Main exited with code 1)
+    Error on line 6 of test21-nop-remove-err.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test21-nop-remove-err.in --------------------
+1. # Check error message for removal of unstaged, untracked file.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. > rm f.txt
+5. No reason to remove the file.
+6. <<<
+7. 
+------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > rm f.txt
+- Exception in thread "main" java.lang.IllegalArgumentException: /autograder/course-materials/proj/proj2/grader/submit/test21-nop-remove-err_0/.gitlet/StageAdd (No such file or directory)
+- 	at gitlet.Utils.readObject(Utils.java:151)
+- 	at gitlet.Repository.gitRm(Repository.java:185)
+- 	at gitlet.Main.main(Main.java:32)
+- 	at AGTester.main(AGTester.java:90)
+22) remove-deleted-file (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that we can unstage a file we have deleted with plain Unix 'rm'
+
+
+test22-remove-deleted-file:
+Testing directory: test22-remove-deleted-file_0
+OK
+
+All passed.
+23) global-log (0.0/29.63)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test23:116 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that global-log prints out commits in master branch.
+
+
+test23-global-log:
+Testing directory: test23-global-log_0
+ERROR (incorrect output)
+    Error on line 12 of test23-global-log.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test23-global-log.in --------------------
+1. # Check that global-log prints out commits in master branch.
+2. # FIXME: kludged around problem with regular-expression pattern characters in
+3. #        log.
+4. I setup2.inc
+5. # Kludge starts.
+6. D DATE1 "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d"
+7. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE1}) [-+](\d\d\d\d[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+8. + h.txt wug.txt
+9. > add h.txt
+10. <<<
+11. > commit "Add h"
+12. <<<
+13. > log
+14. ${COMMIT_LOG}
+15. ${COMMIT_LOG}
+16. ${COMMIT_LOG}
+17. <<<*
+18. D L1 "${1} [-+]${2}"
+19. D L2 "${3} [-+]${4}"
+20. D L3 "${5} [-+]${6}"
+21. > global-log
+22. ${ARBLINES}${L1}?${ARBLINES}
+23. <<<*
+24. > global-log
+25. ${ARBLINES}${L2}?${ARBLINES}
+26. <<<*
+27. > global-log
+28. ${ARBLINES}${L3}${ARBLINES}
+29. <<<*
+30. 
+--------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- setup2.inc --------------------
+1. # Set up one commit with two files.
+2. I setup1.inc
+3. > commit "Two files"
+4. <<<
+----------------------------------------------------
+-------------------- setup1.inc --------------------
+1. # Initialize and add two files.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. + g.txt notwug.txt
+5. > add g.txt
+6. <<<
+7. > add f.txt
+8. <<<
+----------------------------------------------------
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > commit "Add h"
+- No changes added to the commit.
+24) global-log-prev (0.0/59.259)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test24:122 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that global-log prints out commits that are no longer in any branch.
+
+
+test24-global-log-prev:
+Testing directory: test24-global-log-prev_0
+ERROR (incorrect output)
+    Error on line 7 of test24-global-log-prev.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test24-global-log-prev.in --------------------
+1. # Check that global-log prints out commits that are no longer in any branch.
+2. I setup2.inc
+3. + h.txt wug.txt
+4. > add h.txt
+5. <<<
+6. > commit "Add h"
+7. <<<
+8. > log
+9. ${COMMIT_LOG}
+10. ${COMMIT_LOG}
+11. ${COMMIT_LOG}
+12. <<<*
+13. D L1 "${1}"
+14. D L2 "${2}"
+15. D L3 "${3}"
+16. > log
+17. ===
+18. ${COMMIT_HEAD}
+19. Add h
+20. 
+21. ===
+22. ${COMMIT_HEAD}${ARBLINES}
+23. <<<*
+24. D ID "${2}"
+25. > reset ${ID}
+26. <<<
+27. > global-log
+28. ${ARBLINES}${L1}?${ARBLINES}
+29. <<<*
+-------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- setup2.inc --------------------
+1. # Set up one commit with two files.
+2. I setup1.inc
+3. > commit "Two files"
+4. <<<
+----------------------------------------------------
+-------------------- setup1.inc --------------------
+1. # Initialize and add two files.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. + g.txt notwug.txt
+5. > add g.txt
+6. <<<
+7. > add f.txt
+8. <<<
+----------------------------------------------------
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > commit "Add h"
+- No changes added to the commit.
+25) successful-find (0.0/29.63)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test25:128 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Test the find command when it succeeds.
+
+
+test25-successful-find:
+Testing directory: test25-successful-find_0
+ERROR (incorrect output)
+    Error on line 11 of test25-successful-find.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test25-successful-find.in --------------------
+ 1. # Test the find command when it succeeds.
+ 2. I setup2.inc
+ 3. > rm f.txt
+ 4. <<<
+ 5. > commit "Remove one file"
+ 6. <<<
+ 7. + f.txt notwug.txt
+ 8. > add f.txt
+ 9. <<<
+10. > commit "Two files"
+11. <<<
+12. > log
+13. ===
+14. ${COMMIT_HEAD}
+15. Two files
+16. 
+17. ===
+18. ${COMMIT_HEAD}
+19. Remove one file
+20. 
+21. ===
+22. ${COMMIT_HEAD}
+23. Two files
+24. 
+25. ===
+26. ${COMMIT_HEAD}
+27. initial commit
+28. 
+29. <<<*
+30. # UID of initial version
+31. D UID1 "${4}"
+32. # UID of second version
+33. D UID2 "${3}"
+34. # UID of third version
+35. D UID3 "${2}"
+36. # UID of current version
+37. D UID4 "${1}"
+38. > find "Two files"
+39. (${UID4}\n${UID2}|${UID2}\n${UID4})
+40. <<<*
+41. > find "initial commit"
+42. ${UID1}
+43. <<<
+44. > find "Remove one file"
+45. ${UID3}
+46. <<<
+-------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- setup2.inc --------------------
+1. # Set up one commit with two files.
+2. I setup1.inc
+3. > commit "Two files"
+4. <<<
+----------------------------------------------------
+-------------------- setup1.inc --------------------
+1. # Initialize and add two files.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. + g.txt notwug.txt
+5. > add g.txt
+6. <<<
+7. > add f.txt
+8. <<<
+----------------------------------------------------
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > commit "Two files"
+- No changes added to the commit.
+26) successful-find-orphan (0.0/59.259)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test26:134 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Test the find command when it finds commits that are no longer
+
+
+test26-successful-find-orphan:
+Testing directory: test26-successful-find-orphan_0
+ERROR (incorrect output)
+    Error on line 29 of test26-successful-find-orphan.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test26-successful-find-orphan.in --------------------
+ 1. # Test the find command when it finds commits that are no longer
+ 2. # on any branch.
+ 3. I setup2.inc
+ 4. > rm f.txt
+ 5. <<<
+ 6. > commit "Remove one file"
+ 7. <<<
+ 8. > log
+ 9. ===
+10. ${COMMIT_HEAD}
+11. Remove one file
+12. 
+13. ===
+14. ${COMMIT_HEAD}
+15. Two files
+16. 
+17. ===
+18. ${COMMIT_HEAD}
+19. initial commit
+20. 
+21. <<<*
+22. # UID of initial version
+23. D UID1 "${3}"
+24. # UID of second version
+25. D UID2 "${2}"
+26. # UID of third version
+27. D UID3 "${1}"
+28. > reset ${2}
+29. <<<
+30. > find "Remove one file"
+31. ${UID3}
+32. <<<
+--------------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- setup2.inc --------------------
+1. # Set up one commit with two files.
+2. I setup1.inc
+3. > commit "Two files"
+4. <<<
+----------------------------------------------------
+-------------------- setup1.inc --------------------
+1. # Initialize and add two files.
+2. I prelude1.inc
+3. + f.txt wug.txt
+4. + g.txt notwug.txt
+5. > add g.txt
+6. <<<
+7. > add f.txt
+8. <<<
+----------------------------------------------------
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > reset ea758f2212c4c3e77a7b28590f21826dbddb6a80
+- No commit with that id exists.
+27) unsuccessful-find-err (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Test the find command when it finds commits that are no longer
+
+
+test27-unsuccessful-find-err:
+Testing directory: test27-unsuccessful-find-err_0
+OK
+
+All passed.
+28) checkout-detail (29.63/29.63)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that we can check out a previous version.
+
+
+test28-checkout-detail:
+Testing directory: test28-checkout-detail_0
+OK
+
+All passed.
+29) bad-checkouts-err (0.0/44.444)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test29:152 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that we can check out a previous version.
+
+
+test29-bad-checkouts-err:
+Testing directory: test29-bad-checkouts-err_0
+ERROR (incorrect output)
+    Error on line 39 of test29-bad-checkouts-err.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test29-bad-checkouts-err.in --------------------
+ 1. # Check that we can check out a previous version.
+ 2. I prelude1.inc
+ 3. + wug.txt wug.txt
+ 4. > add wug.txt
+ 5. <<<
+ 6. > commit "version 1 of wug.txt"
+ 7. <<<
+ 8. + wug.txt notwug.txt
+ 9. > add wug.txt
+10. <<<
+11. > commit "version 2 of wug.txt"
+12. <<<
+13. > log
+14. ===
+15. ${COMMIT_HEAD}
+16. version 2 of wug.txt
+17. 
+18. ===
+19. ${COMMIT_HEAD}
+20. version 1 of wug.txt
+21. 
+22. ===
+23. ${COMMIT_HEAD}
+24. initial commit
+25. 
+26. <<<*
+27. # UID of second version
+28. D UID2 "${1}"
+29. # UID of current version
+30. D UID1 "${2}"
+31. > checkout ${UID2} -- warg.txt
+32. File does not exist in that commit.
+33. <<<
+34. > checkout 5d0bc169a1737e955f9cb26b9e7aa21e4afd4d12 -- wug.txt
+35. No commit with that id exists.
+36. <<<
+37. > checkout ${UID2} ++ wug.txt
+38. Incorrect operands.
+39. <<<
+40. > checkout foobar
+41. No such branch exists.
+42. <<<
+43. > checkout master
+44. No need to checkout the current branch.
+45. <<<
+---------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > checkout 91d579ec4a77d8e242f98f3f8206933fe573b65c ++ wug.txt
+30) branches (0.0/44.444)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test30:158 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Create two branches and switch between them
+
+
+test30-branches:
+Testing directory: test30-branches_0
+ERROR (java gitlet.Main exited with code 1)
+    Error on line 16 of test30-branches.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test30-branches.in --------------------
+ 1. # Create two branches and switch between them
+ 2. I prelude1.inc
+ 3. > branch other
+ 4. <<<
+ 5. + f.txt wug.txt
+ 6. + g.txt notwug.txt
+ 7. > add g.txt
+ 8. <<<
+ 9. > add f.txt
+10. <<<
+11. > commit "Main two files"
+12. <<<
+13. E f.txt
+14. E g.txt
+15. > checkout other
+16. <<<
+17. * f.txt
+18. * g.txt
+19. + f.txt notwug.txt
+20. > add f.txt
+21. <<<
+22. > commit "Alternative file"
+23. <<<
+24. = f.txt notwug.txt
+25. * g.txt
+26. > checkout master
+27. <<<
+28. = f.txt wug.txt
+29. = g.txt notwug.txt
+30. > checkout other
+31. <<<
+32. = f.txt notwug.txt
+33. * g.txt
+34. 
+35. 
+------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > checkout other
+- Exception in thread "main" java.lang.IllegalArgumentException: not .gitlet working directory
+- 	at gitlet.Utils.restrictedDelete(Utils.java:74)
+- 	at gitlet.Repository.checkoutBranch(Repository.java:381)
+- 	at gitlet.Main.main(Main.java:59)
+- 	at AGTester.main(AGTester.java:90)
+30a) rm-branch (0.0/44.444)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test30a:164 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Test branch removal.
+
+
+test30a-rm-branch:
+Testing directory: test30a-rm-branch_0
+ERROR (java gitlet.Main exited with code 1)
+    Error on line 11 of test30a-rm-branch.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test30a-rm-branch.in --------------------
+1. # Test branch removal.
+2. I prelude1.inc
+3. > branch other
+4. <<<
+5. + f.txt wug.txt
+6. > add f.txt
+7. <<<
+8. > commit "File f.txt"
+9. <<<
+10. > checkout other
+11. <<<
+12. + g.txt notwug.txt
+13. > add g.txt
+14. <<<
+15. > commit "File g.txt"
+16. <<<
+17. > checkout master
+18. <<<
+19. > rm-branch other
+20. <<<
+21. > checkout other
+22. No such branch exists.
+23. <<<
+24. * g.txt
+25. = f.txt wug.txt
+26. 
+--------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > checkout other
+- Exception in thread "main" java.lang.IllegalArgumentException: not .gitlet working directory
+- 	at gitlet.Utils.restrictedDelete(Utils.java:74)
+- 	at gitlet.Repository.checkoutBranch(Repository.java:381)
+- 	at gitlet.Main.main(Main.java:59)
+- 	at AGTester.main(AGTester.java:90)
+31) duplicate-branch-err (44.444/44.444)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Check that two branches can't be given same name.
+
+
+test31-duplicate-branch-err:
+Testing directory: test31-duplicate-branch-err_0
+OK
+
+All passed.
+31a) rm-branch-err (0.0/59.259)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test31a:176 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Test attempts to remove current branch or non-existent branch.
+
+
+test31a-rm-branch-err:
+Testing directory: test31a-rm-branch-err_0
+ERROR (java gitlet.Main exited with code 1)
+    Error on line 6 of test31a-rm-branch-err.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test31a-rm-branch-err.in --------------------
+1. # Test attempts to remove current branch or non-existent branch.
+2. I prelude1.inc
+3. > branch other
+4. <<<
+5. > checkout other
+6. <<<
+7. + f.txt wug.txt
+8. > add f.txt
+9. <<<
+10. > commit "File f.txt"
+11. <<<
+12. > rm-branch other
+13. Cannot remove the current branch.
+14. <<<
+15. E f.txt
+16. > rm-branch foo
+17. A branch with that name does not exist.
+18. <<<
+------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > checkout other
+- Exception in thread "main" java.lang.IllegalArgumentException: not .gitlet working directory
+- 	at gitlet.Utils.restrictedDelete(Utils.java:74)
+- 	at gitlet.Repository.checkoutBranch(Repository.java:381)
+- 	at gitlet.Main.main(Main.java:59)
+- 	at AGTester.main(AGTester.java:90)
+32) file-overwrite-err (0.0/59.259)
+Test Failed!
+Assertion failed    at AGTester.executeExternalTest:75 (AGTester.java)
+    at AGTestGitlet.test32:182 (AGTestGitlet.java)
+IF YOU'RE FAILING THIS TEST, this is a description of this test:
+
+Make sure checkout does not overwrite files.
+
+
+test32-file-overwrite-err:
+Testing directory: test32-file-overwrite-err_0
+ERROR (java gitlet.Main exited with code 1)
+    Error on line 16 of test32-file-overwrite-err.in
+
+
+~~~~~~~~~~~~~~~~~~~~ TEST CONTENTS ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- test32-file-overwrite-err.in --------------------
+1. # Make sure checkout does not overwrite files.
+2. I prelude1.inc
+3. > branch other
+4. <<<
+5. + f.txt wug.txt
+6. + g.txt notwug.txt
+7. > add g.txt
+8. <<<
+9. > add f.txt
+10. <<<
+11. > commit "Main two files"
+12. <<<
+13. E f.txt
+14. E g.txt
+15. > checkout other
+16. <<<
+17. + f.txt notwug.txt
+18. > checkout master
+19. There is an untracked file in the way; delete it, or add and commit it first.
+20. <<<
+----------------------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED .INC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- prelude1.inc --------------------
+1. # Standard commands and definitions
+2. > init
+3. <<<
+4. D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
+5. # A status log header RE.  Captures the commit id in its sole group.
+6. D COMMIT_HEAD "commit ([a-f0-9]+)[ \t]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}"
+7. # A full log entry.  Captures the entry. Assume logs messages don't contain
+8. # "==="
+9. D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE}[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+10. # An arbitrary line of text (works even with ?s)
+11. D ARBLINE "[^\n]*(?=\n|\Z)"
+12. # Zero or more arbitrary full lines of text.
+13. D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+------------------------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~ REFERENCED SRC FILES ~~~~~~~~~~~~~~~~~~~~
+
+
+-------------------- notwug.txt --------------------
+1. This is not a wug.
+----------------------------------------------------
+-------------------- wug.txt --------------------
+1. This is a wug.
+-------------------------------------------------
+
+0 passed.
+...incorrect output. Here's the result of the last (failed) command that was run:
+
++ > checkout other
+- Exception in thread "main" java.lang.IllegalArgumentException: not .gitlet working directory
+- 	at gitlet.Utils.restrictedDelete(Utils.java:74)
+- 	at gitlet.Repository.checkoutBranch(Repository.java:381)
+- 	at gitlet.Main.main(Main.java:59)
+- 	at AGTester.main(AGTester.java:90)
