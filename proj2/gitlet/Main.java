@@ -49,14 +49,15 @@ public class Main {
                 break;
             case "checkout":
                 // TODO: handle the `add [filename]` command
-                if (args.length == 3) {
+                if (args.length == 3 && args[1].equals("--")) {
                     Repository.checkoutFile(args[2]);
-                }
-                if (args.length == 4) {
+                }else if (args.length == 4 && args[2].equals("--")) {
                     Repository.checkoutCommitFile(args[1], args[3]);
-                }
-                if (args.length == 2) {
+                }else if (args.length == 2) {
                     Repository.checkoutBranch(args[1]);
+                }else{
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
                 }
                 break;
             case "branch":

@@ -431,6 +431,9 @@ public class Repository {
         Commit resetCommit = readObject(resetComitId,Commit.class);
         TreeMap<String, String> resetBobfile = resetCommit.getBobIndex();
         List<String> cwdFile = plainFilenamesIn(CWD);
+        File currentBranchName = join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0));
+        Commit currentCommit = readObject(currentBranchName, Commit.class);
+        TreeMap<String, String> currentBobFile = currentCommit.getBobIndex();
         // delete current dir file which are not exit in given commit
         for (String i : cwdFile) {
             File mycwdFile = join(CWD, i);
@@ -441,30 +444,18 @@ public class Repository {
                         "delete it, or add and commit it first.");
                 System.exit(0);
             }
+            if(!currentBobFile.containsKey(i)){
+                restrictedDelete(mycwdFile);
+            }
             //copy or overwrite given commit file to CWD
             byte[] fileContent;
             for (Map.Entry<String, String> entry : resetBobfile.entrySet()) {
                 fileContent = readContents(join(BOB_DIR, entry.getValue()));
                 writeContents(join(CWD, entry.getKey()), fileContent);
             }
-            File currentBranchName = join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0));
-            Commit currentCommit = readObject(currentBranchName, Commit.class);
-            TreeMap<String, String> currentBobFile = currentCommit.getBobIndex();
-            //delete file from the bobindexfile ,which track in currentBranch ,not in given branch
-            for (Map.Entry<String, String> entry : currentBobFile.entrySet()) {
-                for (Map.Entry<String, String> entry1 : resetBobfile.entrySet()) {
-                    if (i.equals(entry1)) {
-                        continue;
-                    }
-                    //delete track
-                    resetBobfile.remove(entry1.getKey());
-                    join(BOB_DIR,entry1.getValue()).delete();
-                    //delete file from cwd.
-                    restrictedDelete(join(CWD, entry.getKey()));
-                }
-            }
+
             StageAdd.clear();
-            StageRemove.clear();
+            writeObject(STAGE_ADD,StageAdd);
             // store this branch to head
             join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0)).delete();
             writeObject(currentBranchName, resetCommit);
