@@ -588,11 +588,11 @@ public class Repository {
         while(!queCommit.isEmpty()){
             Commit presentCommit = queCommit.poll();
             currentPath.add(presentCommit.getsha1());
-            if (!currentCommit.getParentIndex().equals(null)){
+            if (currentCommit.getParentIndex() != null){
                 Commit parent = readObject(join(OBJECT_DIR,currentCommit.getParentIndex()),Commit.class);
                 queCommit.add(parent);
             }
-            if (!currentCommit.getSecondParentIndex().equals(null)){
+            if (currentCommit.getSecondParentIndex() != null){
                 Commit secondparent = readObject(join(OBJECT_DIR,currentCommit.getSecondParentIndex()),Commit.class);
                 queCommit.add(secondparent);
             }
