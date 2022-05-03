@@ -41,6 +41,7 @@ public class Commit implements Serializable {
     private String sha1;
     private Date date;
     private String parentIndex;
+    private String secondparentIndex;
     private TreeMap<String,String> bobIndex;// store evey file's sha1
 
     public Commit(){
@@ -51,12 +52,13 @@ public class Commit implements Serializable {
         this.parentIndex = null;
     }
 
-    public Commit(String message,String parentIndex){
+    public Commit(String message,String parentIndex,String secondparentIndex){
         this.message = message;
         date = new Date();
         sha1 =  Utils.sha1(Utils.serialize(this));
         this.parentIndex = parentIndex;
         bobIndex = new TreeMap<String,String>();
+        this.secondparentIndex = secondparentIndex;
     }
 
 
@@ -142,6 +144,9 @@ public class Commit implements Serializable {
 
     public String getParentIndex(){
         return this.parentIndex;
+    }
+    public String getSecondParentIndex(){
+        return this.secondparentIndex;
     }
 
     public String getMessage(){return this.message;}

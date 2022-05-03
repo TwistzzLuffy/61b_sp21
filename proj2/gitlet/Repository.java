@@ -1,15 +1,10 @@
 package gitlet;
 
-
-
-
+// TODO: any imports you need here
 import java.io.File;
 import java.util.*;
 
 import static gitlet.Utils.*;
-
-// TODO: any imports you need here
-
 /** Represents a gitlet repository.
  *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
@@ -51,11 +46,11 @@ public class Repository {
 
     public static final File GIT_SHORT_ID_DIR = join(GITLET_DIR, "short");
     // finish the link between add and commit command
-    public static TreeMap<String, String> StageAdd = new TreeMap<String, String>();
+    public static TreeMap<String, String> StageAdd = new TreeMap<>();
     // finish the link between rm and commit command
-    public static TreeMap<String, String> StageRemove = new TreeMap<String, String>();
+    public static TreeMap<String, String> StageRemove = new TreeMap<>();
 
-    public static TreeMap<String, String> bobIndex = new TreeMap<String, String>();
+    public static TreeMap<String, String> bobIndex = new TreeMap<>();
     /* TODO: fill in the rest of this class. */
     /** create .gitlet*/
 
@@ -125,29 +120,12 @@ public class Repository {
         writeObject(stagFile, StageAdd);
     }
 
-    /**
-     * commit
-     */
-    public static void gitCommit(String message) {
-        if (STAGE_ADD.exists()){
-            StageAdd = readObject(STAGE_ADD, TreeMap.class);
-        }
-        if (STAGE_REMOVE.exists()){
-            StageRemove = readObject(STAGE_REMOVE,TreeMap.class);
-        }
-        if (StageAdd.isEmpty() && StageRemove.isEmpty()) {
-            System.out.println("No changes added to the commit.");
-            System.exit(0);
-        }
-        if (message.isBlank()) {
-            System.out.println("Please enter a commit message.");
-            return;
-        }
+    public static void creatCommit(String message,String secondparent){
         //need modified branch name
         File heads = join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0));
         // head refer to the previous commit
         Commit head = readObject(heads, Commit.class);
-        Commit commit = new Commit(message, head.getsha1());
+        Commit commit = new Commit(message, head.getsha1(),secondparent);
         //
         commit.addStaging(StageAdd);
         if (head.getBobIndex() != null) {
@@ -177,6 +155,26 @@ public class Repository {
 
         //make heads store the new commit Hint: must be after stage clean
         writeObject(heads, commit);
+    }
+    /**
+     * commit
+     */
+    public static void gitCommit(String message) {
+        if (STAGE_ADD.exists()){
+            StageAdd = readObject(STAGE_ADD, TreeMap.class);
+        }
+        if (STAGE_REMOVE.exists()){
+            StageRemove = readObject(STAGE_REMOVE,TreeMap.class);
+        }
+        if (StageAdd.isEmpty() && StageRemove.isEmpty()) {
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+        if (message.isBlank()) {
+            System.out.println("Please enter a commit message.");
+            return;
+        }
+        creatCommit(message,null);
     }
 
 
@@ -461,6 +459,150 @@ public class Repository {
             join(HEAD_DIR, plainFilenamesIn(HEAD_DIR).get(0)).delete();
             writeObject(currentBranchName, resetCommit);
         }
+    }
+
+    public static void merge(String branchName){
+        File headName = join(HEAD_DIR,plainFilenamesIn(HEAD_DIR).get(0));
+        Commit currentCommit = readObject(headName,Commit.class);
+        Commit givenCommit = readObject(join(BRANCH_DIR,branchName),Commit.class);
+        Commit splitCommit = getSplitCommit(currentCommit,givenCommit);
+        if (splitCommit.equals(givenCommit)){
+            System.out.println(" Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
+        if (splitCommit.equals(currentCommit)){
+            checkoutBranch(branchName);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        TreeMap<String,String> currentTrack = currentCommit.getBobIndex();
+        TreeMap<String,String> givenTrack = givenCommit.getBobIndex();
+        TreeMap<String,String> splitTrack = splitCommit.getBobIndex();
+
+        Set<String> currentSet = currentTrack.keySet();
+        Set<String> givenSet = givenTrack.keySet();
+        Set<String> splitSet = splitTrack.keySet();
+        Set<String> tempSet = currentSet;
+        //not in Split nor HEAD but in Other -> Other (Hint : file
+        // can't be modified in currentBranch,because don't exit this file )
+        givenSet.removeAll(splitSet);
+        givenSet.removeAll(currentSet);
+        for (String file1 : givenSet){
+            StageAdd = readObject(STAGE_ADD,TreeMap.class);
+            StageAdd.put(file1,givenTrack.get(file1));
+            writeObject(STAGE_ADD,StageAdd);
+        }
+        currentSet.retainAll(splitSet);
+        currentSet.retainAll(givenSet);
+        for (String file1 : currentSet){
+            boolean modSignCurrent = false;
+            boolean modSignGiven = false;
+            if (!currentTrack.get(file1).equals(splitTrack.get(file1))){
+                modSignCurrent = true;
+            }
+            if (!givenTrack.get(file1).equals(splitTrack.get(file1))) {
+                modSignGiven = true;
+            }
+            if (modSignCurrent && modSignGiven &&
+                    !givenTrack.get(file1).equals(currentTrack.get(file1))){
+                String content = "<<<<<<< HEAD\n";
+                content += currentTrack.get(file1)== null ? ""
+                        : readContentsAsString(join(BOB_DIR,currentTrack.get(file1)));
+                content += "=======\n";
+                content += givenTrack.get(file1)== null ? ""
+                        : readContentsAsString(join(BOB_DIR,givenTrack.get(file1)));
+                content += ">>>>>>>\n";
+                writeContents(join(join(BOB_DIR,givenTrack.get(file1)),content));
+            }
+        }
+
+
+
+        for (String file : currentSet){
+            boolean unmodifiedSign = true;
+            if (!currentTrack.get(file).equals(splitTrack.get(file))){
+                unmodifiedSign = false;
+            }
+            if (unmodifiedSign){
+                if (!givenSet.contains(file)){
+                    StageRemove = readObject(STAGE_REMOVE,TreeMap.class);
+                    StageRemove.put(file,currentTrack.get(file));
+                    writeObject(STAGE_REMOVE,StageRemove);
+                    continue;
+                }
+                if (!currentTrack.get(file).equals(givenTrack.get(file))){
+                    // the file modified in givenBranch
+                    StageAdd = readObject(STAGE_ADD,TreeMap.class);
+                    StageAdd.put(file,givenTrack.get(file));
+                    writeObject(STAGE_ADD,StageAdd);
+                }
+            }else if ()
+        }
+        //special when file only in currentSet, don't need to do anything
+        //        currentSet = tempSet;
+        //        currentSet.removeAll(splitSet);
+        //when file in both split and given ,don't need to do anything
+        tempSet =givenSet;
+        givenSet.retainAll(splitSet);
+        for (String file2 : givenSet){
+            if (!currentSet.contains(file2) &&)
+        }
+        givenSet = tempSet;
+        givenSet.removeAll(splitSet);
+        for (String file1 : givenSet){
+            if (!currentSet.contains(file1)){
+                StageAdd = readObject(STAGE_ADD,TreeMap.class);
+                StageAdd.put(file1,givenTrack.get(file1));
+                writeObject(STAGE_ADD,StageAdd);
+            }
+        }
+        String mergelog = "Merged"+branchName+"into"+headName+".";
+        creatCommit(mergelog,givenCommit.getsha1());
+    }
+
+    public static Commit getSplitCommit(Commit currentCommit,Commit givenCommit){
+        List<String> currentPath = new ArrayList<>();
+        Set<String> givenPath = new HashSet<>();
+
+        Queue<Commit> queCommit = new LinkedList<>();
+        //add current commit path
+        queCommit.add(currentCommit);
+        while(!queCommit.isEmpty()){
+            Commit presentCommit = queCommit.poll();
+            currentPath.add(presentCommit.getsha1());
+            if (!currentCommit.getParentIndex().equals(null)){
+                Commit parent = readObject(join(OBJECT_DIR,currentCommit.getParentIndex()),Commit.class);
+                queCommit.add(parent);
+            }
+            if (!currentCommit.getSecondParentIndex().equals(null)){
+                Commit secondparent = readObject(join(OBJECT_DIR,currentCommit.getSecondParentIndex()),Commit.class);
+                queCommit.add(secondparent);
+            }
+        }
+        //add given commmit path
+        queCommit.add(givenCommit);
+        while(!queCommit.isEmpty()){
+            Commit presentCommit = queCommit.poll();
+            givenPath.add(presentCommit.getsha1());
+            if (!currentCommit.getParentIndex().equals(null)){
+                Commit parent = readObject(join(OBJECT_DIR,currentCommit.getParentIndex()),
+                        Commit.class);
+                queCommit.add(parent);
+            }
+            if (!currentCommit.getSecondParentIndex().equals(null)){
+                Commit secondparent = readObject(join(OBJECT_DIR,currentCommit.getSecondParentIndex()),
+                        Commit.class);
+                queCommit.add(secondparent);
+            }
+        }
+
+        // find spitCommit
+        for (String id : currentPath){
+            if (givenPath.contains(id)){
+                return readObject(join(OBJECT_DIR,id),Commit.class);
+            }
+        }
+        return null;
     }
 }
 
