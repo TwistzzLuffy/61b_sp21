@@ -395,7 +395,7 @@ public class Repository {
         //the given commit will be the current branch
         join(HEAD_DIR, plainHead.get(0)).delete();
         // head store the given branch
-        writeObject(HEAD_DIR, branchName);
+        writeObject(join(HEAD_DIR,branchName), givenBranch);
 
     }
 
