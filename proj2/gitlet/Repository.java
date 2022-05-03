@@ -462,10 +462,31 @@ public class Repository {
     }
 
     public static void merge(String branchName){
+        String currBranchName = plainFilenamesIn(HEAD_DIR).get(0);
+        List<String> branchNames = plainFilenamesIn(BRANCH_DIR);
         File headName = join(HEAD_DIR,plainFilenamesIn(HEAD_DIR).get(0));
         Commit currentCommit = readObject(headName,Commit.class);
         Commit givenCommit = readObject(join(BRANCH_DIR,branchName),Commit.class);
         Commit splitCommit = getSplitCommit(currentCommit,givenCommit);
+        StageAdd = readObject(STAGE_ADD,TreeMap.class);
+        StageRemove = readObject(STAGE_REMOVE,TreeMap.class);
+        if (!StageAdd.isEmpty() || !StageRemove.isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+        if (!branchNames.contains(branchName)) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if (currBranchName.equals(branchName)) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+        ////
+        if (splitCommit == null) {
+            System.out.println("Does not find split point.");
+            System.exit(0);
+        }
         if (splitCommit.equals(givenCommit)){
             System.out.println(" Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -475,6 +496,7 @@ public class Repository {
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
         }
+
         TreeMap<String,String> currentTrack = currentCommit.getBobIndex();
         TreeMap<String,String> givenTrack = givenCommit.getBobIndex();
         TreeMap<String,String> splitTrack = splitCommit.getBobIndex();
@@ -485,77 +507,71 @@ public class Repository {
         Set<String> tempSet = currentSet;
         //not in Split nor HEAD but in Other -> Other (Hint : file
         // can't be modified in currentBranch,because don't exit this file )
+        tempSet = givenSet;
         givenSet.removeAll(splitSet);
         givenSet.removeAll(currentSet);
+        //case 4,5
         for (String file1 : givenSet){
-            StageAdd = readObject(STAGE_ADD,TreeMap.class);
             StageAdd.put(file1,givenTrack.get(file1));
-            writeObject(STAGE_ADD,StageAdd);
-        }
-        currentSet.retainAll(splitSet);
-        currentSet.retainAll(givenSet);
-        for (String file1 : currentSet){
-            boolean modSignCurrent = false;
-            boolean modSignGiven = false;
-            if (!currentTrack.get(file1).equals(splitTrack.get(file1))){
-                modSignCurrent = true;
-            }
-            if (!givenTrack.get(file1).equals(splitTrack.get(file1))) {
-                modSignGiven = true;
-            }
-            if (modSignCurrent && modSignGiven &&
-                    !givenTrack.get(file1).equals(currentTrack.get(file1))){
-                String content = "<<<<<<< HEAD\n";
-                content += currentTrack.get(file1)== null ? ""
-                        : readContentsAsString(join(BOB_DIR,currentTrack.get(file1)));
-                content += "=======\n";
-                content += givenTrack.get(file1)== null ? ""
-                        : readContentsAsString(join(BOB_DIR,givenTrack.get(file1)));
-                content += ">>>>>>>\n";
-                writeContents(join(join(BOB_DIR,givenTrack.get(file1)),content));
-            }
-        }
-
-
-
-        for (String file : currentSet){
-            boolean unmodifiedSign = true;
-            if (!currentTrack.get(file).equals(splitTrack.get(file))){
-                unmodifiedSign = false;
-            }
-            if (unmodifiedSign){
-                if (!givenSet.contains(file)){
-                    StageRemove = readObject(STAGE_REMOVE,TreeMap.class);
-                    StageRemove.put(file,currentTrack.get(file));
-                    writeObject(STAGE_REMOVE,StageRemove);
-                    continue;
-                }
-                if (!currentTrack.get(file).equals(givenTrack.get(file))){
-                    // the file modified in givenBranch
-                    StageAdd = readObject(STAGE_ADD,TreeMap.class);
-                    StageAdd.put(file,givenTrack.get(file));
-                    writeObject(STAGE_ADD,StageAdd);
-                }
-            }else if ()
-        }
-        //special when file only in currentSet, don't need to do anything
-        //        currentSet = tempSet;
-        //        currentSet.removeAll(splitSet);
-        //when file in both split and given ,don't need to do anything
-        tempSet =givenSet;
-        givenSet.retainAll(splitSet);
-        for (String file2 : givenSet){
-            if (!currentSet.contains(file2) &&)
+            writeContents(join(CWD,file1),
+                    readContentsAsString(join(BOB_DIR,givenTrack.get(file1))));
         }
         givenSet = tempSet;
-        givenSet.removeAll(splitSet);
-        for (String file1 : givenSet){
-            if (!currentSet.contains(file1)){
-                StageAdd = readObject(STAGE_ADD,TreeMap.class);
-                StageAdd.put(file1,givenTrack.get(file1));
-                writeObject(STAGE_ADD,StageAdd);
+        //file in the 3 sets
+        tempSet = currentSet;
+        currentSet.retainAll(splitSet);
+        currentSet.retainAll(givenSet);
+        for (String file2 : currentSet){
+            boolean modSignCurrent = false;
+            boolean modSignGiven = false;
+            boolean conflit = false;
+            if (!currentTrack.get(file2).equals(splitTrack.get(file2))){
+                modSignCurrent = true;
+            }
+            if (!givenTrack.get(file2).equals(splitTrack.get(file2))) {
+                modSignGiven = true;
+            }
+            // file in currentBranch and givenBranch are modifide by different way
+            if (modSignCurrent && modSignGiven &&
+                    !givenTrack.get(file2).equals(currentTrack.get(file2))){
+                conflit = true;
+                String content = "<<<<<<< HEAD\n";
+                content += currentTrack.get(file2)== null ? ""
+                        : readContentsAsString(join(BOB_DIR,currentTrack.get(file2)));
+                content += "=======\n";
+                content += givenTrack.get(file2)== null ? ""
+                        : readContentsAsString(join(BOB_DIR,givenTrack.get(file2)));
+                content += ">>>>>>>\n";
+                byte[] conflictContentsByte = content.getBytes();
+                String newBlobId = sha1(conflictContentsByte);
+                StageAdd.put(file2,newBlobId);
+                //store the new confilcted file in bobDir
+                writeContents(join(BOB_DIR,newBlobId),content);
+                //renew the cwd file
+                writeContents(join(CWD,file2),content);
+            }else if (modSignGiven && !modSignCurrent){
+                //case 1
+                StageAdd.put(file2,givenTrack.get(file2));
+                writeContents(join(CWD,file2),
+                        readContentsAsString(join(BOB_DIR,givenTrack.get(file2))));
+            }
+            if (conflit){
+                System.out.println("Encountered a merge conflict.");
             }
         }
+        tempSet.retainAll(splitSet);
+        tempSet.removeAll(givenSet);
+        for (String file3 : tempSet){
+            boolean modSignCurrent = false;
+            if (!currentTrack.get(file3).equals(splitTrack.get(file3))){
+                modSignCurrent = true;
+            }
+            if (!modSignCurrent){
+                StageRemove.put(file3,currentTrack.get(file3));
+                restrictedDelete(join(CWD,file3));
+            }
+        }
+
         String mergelog = "Merged"+branchName+"into"+headName+".";
         creatCommit(mergelog,givenCommit.getsha1());
     }
