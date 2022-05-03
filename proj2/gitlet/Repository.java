@@ -411,12 +411,12 @@ public class Repository {
     }
 
     public static void rmBranch(String branchName) {
-        File branchNameFile = join(HEAD_DIR, branchName);
+        File branchNameFile = join(BRANCH_DIR, branchName);
         if (!branchNameFile.exists()) {
             System.out.println("A branch with that name does not exist.");
             System.exit(0);
         }
-        if (branchNameFile.equals(plainFilenamesIn(HEAD_DIR).get(0))) {
+        if (branchName.equals(plainFilenamesIn(HEAD_DIR).get(0))) {
             System.out.println("Cannot remove the current branch.");
             System.exit(0);
         }
