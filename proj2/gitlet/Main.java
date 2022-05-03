@@ -65,8 +65,10 @@ public class Main {
                 break;
             case "rm-branch":
                 Repository.rmBranch(args[1]);
+                break;
             case "reset":
                 Repository.reset(args[1]);
+                break;
         }
     }
 }
