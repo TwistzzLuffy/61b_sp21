@@ -82,7 +82,8 @@ public class Commit implements Serializable {
                 bobIndex.put(i.getKey(),i.getValue());
 //                this.blobMapToFileName.put(entry.getKey(), entry.getValue());
             }
-            if (this.bobIndex.containsKey(i.getKey())&&(!this.bobIndex.containsValue(i.getValue()))){
+            if (this.bobIndex.containsKey(i.getKey())&&
+                    (!this.bobIndex.containsValue(i.getValue()))){
                 bobIndex.remove(i.getKey());
                 bobIndex.put(i.getKey(),i.getValue());
             }
@@ -101,7 +102,7 @@ public class Commit implements Serializable {
 
     public void deleteStageRemoveFile(TreeMap<String,String>StageRemove){
         for (Map.Entry<String,String> i : StageRemove.entrySet()){
-            this.bobIndex.remove(i.getKey());
+            bobIndex.remove(i.getKey());
         }
     }
 

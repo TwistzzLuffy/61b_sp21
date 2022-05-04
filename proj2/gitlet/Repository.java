@@ -132,9 +132,6 @@ public class Repository {
             commit.addPrviousCommit(head.getBobIndex());
         }
 
-        //gain the active branch ,then store the branch
-        List<String> plainHead = plainFilenamesIn(HEAD_DIR);
-        writeObject(join(BRANCH_DIR, plainHead.get(0)), commit);
 
         //clean the StageAdd and save StagAdd
         StageAdd.clear();
@@ -148,6 +145,10 @@ public class Repository {
         }
         StageRemove.clear();
         writeObject(STAGE_REMOVE, StageRemove);
+
+        //gain the active branch ,then store the branch
+        List<String> plainHead = plainFilenamesIn(HEAD_DIR);
+        writeObject(join(BRANCH_DIR, plainHead.get(0)), commit);
 
         //store commit in OBJECT_DIR
         commit.Save();
@@ -504,24 +505,28 @@ public class Repository {
         Set<String> currentSet = currentTrack.keySet();
         Set<String> givenSet = givenTrack.keySet();
         Set<String> splitSet = splitTrack.keySet();
-        Set<String> tempSet = currentSet;
+        Set<String> tempSet = new HashSet<>();
+        tempSet.clear();
         //not in Split nor HEAD but in Other -> Other (Hint : file
         // can't be modified in currentBranch,because don't exit this file )
-        tempSet = givenSet;
-        givenSet.removeAll(splitSet);
-        givenSet.removeAll(currentSet);
+//        givenSet.removeAll(splitSet);
+//        givenSet.removeAll(currentSet);
+        tempSet.addAll(givenSet);
+        tempSet.removeAll(splitSet);
+        tempSet.removeAll(currentSet);
         //case 4,5
-        for (String file1 : givenSet){
+        for (String file1 : tempSet){
             StageAdd.put(file1,givenTrack.get(file1));
             writeContents(join(CWD,file1),
                     readContentsAsString(join(BOB_DIR,givenTrack.get(file1))));
         }
-        givenSet = tempSet;
+        tempSet.clear();
+
         //file in the 3 sets
-        tempSet = currentSet;
-        currentSet.retainAll(splitSet);
-        currentSet.retainAll(givenSet);
-        for (String file2 : currentSet){
+        tempSet.addAll(currentSet);
+        tempSet.retainAll(splitSet);
+        tempSet.retainAll(givenSet);
+        for (String file2 : tempSet){
             boolean modSignCurrent = false;
             boolean modSignGiven = false;
             boolean conflit = false;
@@ -559,6 +564,8 @@ public class Repository {
                 System.out.println("Encountered a merge conflict.");
             }
         }
+        tempSet.clear();
+        tempSet.addAll(currentSet);
         tempSet.retainAll(splitSet);
         tempSet.removeAll(givenSet);
         for (String file3 : tempSet){
