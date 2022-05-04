@@ -579,7 +579,7 @@ public class Repository {
             }
         }
 
-        String mergelog = "Merged"+branchName+"into"+headName+".";
+        String mergelog = "Merged "+branchName+" into "+currBranchName+".";
         writeObject(STAGE_REMOVE,StageRemove);
         writeObject(STAGE_ADD,StageAdd);
         creatCommit(mergelog,givenCommit.getsha1());
