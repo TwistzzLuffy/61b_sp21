@@ -588,11 +588,11 @@ public class Repository {
         while(!queCommit.isEmpty()){
             Commit presentCommit = queCommit.poll();
             currentPath.add(presentCommit.getsha1());
-            if (currentCommit.getParentIndex() != null){
+            if (presentCommit.getParentIndex() != null){
                 Commit parent = readObject(join(OBJECT_DIR,currentCommit.getParentIndex()),Commit.class);
                 queCommit.add(parent);
             }
-            if (currentCommit.getSecondParentIndex() != null){
+            if (presentCommit.getSecondParentIndex() != null){
                 Commit secondparent = readObject(join(OBJECT_DIR,currentCommit.getSecondParentIndex()),Commit.class);
                 queCommit.add(secondparent);
             }
@@ -602,12 +602,12 @@ public class Repository {
         while(!queCommit.isEmpty()){
             Commit presentCommit = queCommit.poll();
             givenPath.add(presentCommit.getsha1());
-            if (!currentCommit.getParentIndex().equals(null)){
+            if (!presentCommit.getParentIndex().equals(null)){
                 Commit parent = readObject(join(OBJECT_DIR,currentCommit.getParentIndex()),
                         Commit.class);
                 queCommit.add(parent);
             }
-            if (!currentCommit.getSecondParentIndex().equals(null)){
+            if (!presentCommit.getSecondParentIndex().equals(null)){
                 Commit secondparent = readObject(join(OBJECT_DIR,currentCommit.getSecondParentIndex()),
                         Commit.class);
                 queCommit.add(secondparent);
