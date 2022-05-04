@@ -577,8 +577,7 @@ public class Repository {
         writeObject(STAGE_ADD,StageAdd);
         creatCommit(mergelog,givenCommit.getsha1());
     }
-
-    public static Commit getSplitCommit(Commit currentCommit,Commit givenCommit){
+    public static Commit getSplitCommit(Commit currentCommit, Commit givenCommit){
         List<String> currentPath = new ArrayList<>();
         Set<String> givenPath = new HashSet<>();
 
@@ -589,11 +588,11 @@ public class Repository {
             Commit presentCommit = queCommit.poll();
             currentPath.add(presentCommit.getsha1());
             if (presentCommit.getParentIndex() != null){
-                Commit parent = readObject(join(OBJECT_DIR,currentCommit.getParentIndex()),Commit.class);
+                Commit parent = readObject(join(OBJECT_DIR,presentCommit.getParentIndex()),Commit.class);
                 queCommit.add(parent);
             }
             if (presentCommit.getSecondParentIndex() != null){
-                Commit secondparent = readObject(join(OBJECT_DIR,currentCommit.getSecondParentIndex()),Commit.class);
+                Commit secondparent = readObject(join(OBJECT_DIR,presentCommit.getSecondParentIndex()),Commit.class);
                 queCommit.add(secondparent);
             }
         }
@@ -602,13 +601,13 @@ public class Repository {
         while(!queCommit.isEmpty()){
             Commit presentCommit = queCommit.poll();
             givenPath.add(presentCommit.getsha1());
-            if (!presentCommit.getParentIndex().equals(null)){
-                Commit parent = readObject(join(OBJECT_DIR,currentCommit.getParentIndex()),
+            if (presentCommit.getParentIndex() != null){
+                Commit parent = readObject(join(OBJECT_DIR,presentCommit.getParentIndex()),
                         Commit.class);
                 queCommit.add(parent);
             }
-            if (!presentCommit.getSecondParentIndex().equals(null)){
-                Commit secondparent = readObject(join(OBJECT_DIR,currentCommit.getSecondParentIndex()),
+            if (presentCommit.getSecondParentIndex() != null){
+                Commit secondparent = readObject(join(OBJECT_DIR,presentCommit.getSecondParentIndex()),
                         Commit.class);
                 queCommit.add(secondparent);
             }

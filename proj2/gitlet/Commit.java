@@ -50,7 +50,6 @@ public class Commit implements Serializable {
         sha1 =  Utils.sha1(Utils.serialize(this));
         bobIndex = new TreeMap<String,String>();
         this.parentIndex = null;
-        this.secondparentIndex = null;
     }
 
     public Commit(String message,String parentIndex,String secondparentIndex){
