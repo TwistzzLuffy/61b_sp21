@@ -380,15 +380,6 @@ public class Repository {
             fileContent = readContents(join(BOB_DIR, entry.getValue()));
             writeContents(join(CWD, entry.getKey()), fileContent);
         }
-        //delete file which track in currentBranch ,not in given branch
-//        for (Map.Entry<String, String> i : currentBobFile.entrySet()) {
-//            for (Map.Entry<String, String> j : givenBobFile.entrySet()) {
-//                if (i.equals(j)) {
-//                    continue;
-//                }
-//                restrictedDelete(join(CWD, i.getKey()));
-//            }
-//        }
         StageAdd.clear();
         StageRemove.clear();
         //the given commit will be the current branch
@@ -507,10 +498,6 @@ public class Repository {
         Set<String> splitSet = splitTrack.keySet();
         Set<String> tempSet = new HashSet<>();
         tempSet.clear();
-        //not in Split nor HEAD but in Other -> Other (Hint : file
-        // can't be modified in currentBranch,because don't exit this file )
-//        givenSet.removeAll(splitSet);
-//        givenSet.removeAll(currentSet);
         tempSet.addAll(givenSet);
         tempSet.removeAll(splitSet);
         tempSet.removeAll(currentSet);
@@ -568,6 +555,7 @@ public class Repository {
         tempSet.addAll(currentSet);
         tempSet.retainAll(splitSet);
         tempSet.removeAll(givenSet);
+        //case 6,7
         for (String file3 : tempSet){
             boolean modSignCurrent = false;
             if (!currentTrack.get(file3).equals(splitTrack.get(file3))){
@@ -586,7 +574,8 @@ public class Repository {
     }
     public static Commit getSplitCommit(Commit currentCommit, Commit givenCommit){
         List<String> currentPath = new ArrayList<>();
-        Set<String> givenPath = new HashSet<>();
+//        modified
+        List<String> givenPath = new ArrayList<>();
 
         Queue<Commit> queCommit = new LinkedList<>();
         //add current commit path
